@@ -17,13 +17,13 @@ import { Dialog } from '@/components/ui/Dialog'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { formatCurrency, formatDateTime, formatNumber, formatPercent } from '@/lib/format'
+import { formatCurrency, formatDateTime, formatMoney, formatNumber, formatPercent } from '@/lib/format'
 import { cn } from '@/lib/cn'
 
 function Money({ value, signed = false }: { value: number | null | undefined; signed?: boolean }) {
   if (value == null) return <span className="num text-fg-subtle">—</span>
   const tone = signed ? (value > 0 ? 'text-positive' : value < 0 ? 'text-negative' : '') : ''
-  return <span className={cn('num', tone)}>{signed && value > 0 ? '+' : ''}{formatCurrency(value)}</span>
+  return <span className={cn('num', tone)}>{signed && value > 0 ? '+' : ''}{signed ? formatMoney(value) : formatCurrency(value)}</span>
 }
 
 export function PortfolioPage() {

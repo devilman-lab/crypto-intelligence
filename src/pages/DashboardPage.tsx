@@ -8,6 +8,9 @@ import { VolPct } from '@/pages/VolatilityPage'
 import { isStablecoin } from '@shared/analysis/classify'
 import { usePortfolioValuation } from '@/hooks/usePortfolioValuation'
 import { AllocationDonut } from '@/components/portfolio/AllocationDonut'
+import { usePaperStore } from '@/stores/paperStore'
+import { formatDateTime, formatMoney } from '@/lib/format'
+import { Badge } from '@/components/ui/Badge'
 import { useUiStore } from '@/stores/uiStore'
 import { KpiTile, TickerList } from '@/components/dashboard/widgets'
 import { Panel } from '@/components/ui/Panel'
@@ -28,6 +31,8 @@ export function DashboardPage() {
   const navigate = useUiStore((s) => s.navigate)
   const { summary: pf, open: holdings } = usePortfolioValuation(null)
   const hasPortfolio = holdings.length > 0
+  const paperSnapshot = usePaperStore((s) => s.snapshot)
+  const paperTrades = useMemo(() => paperSnapshot?.trades ?? [], [paperSnapshot])
 
   const btc = byId['bitcoin']
   const eth = byId['ethereum']
@@ -138,8 +143,22 @@ export function DashboardPage() {
       <Panel title="Active alerts" className="col-span-12 md:col-span-6 xl:col-span-4" padded={false}>
         <EmptyState icon={Bell} title="No alerts yet" description="Price, volatility, volume and RSI alerts arrive in Phase 10." />
       </Panel>
-      <Panel title="Recent paper trades" className="col-span-12 md:col-span-6 xl:col-span-4" padded={false}>
-        <EmptyState icon={FlaskConical} title="No simulated trades" description="Paper trading arrives in Phase 8." />
+      <Panel title="Recent paper trades" className="col-span-12 md:col-span-6 xl:col-span-4" padded={false} actions={<Button size="xs" variant="ghost" onClick={() => navigate({ page: 'paper' })}>Open</Button>}>
+        {paperTrades.length === 0 ? (
+          <EmptyState icon={FlaskConical} title="No simulated trades" description="Practice strategies with virtual capital in Paper Trading." />
+        ) : (
+          <table className="w-full text-[12px]">
+            <tbody>
+              {paperTrades.slice(0, 6).map((t) => (
+                <tr key={t.id} className="border-t border-border/60">
+                  <td className="px-3 py-1.5"><span className="font-semibold">{t.symbol}</span> <Badge tone={t.side === 'long' ? 'positive' : 'negative'} className="ml-1 uppercase">{t.side}</Badge></td>
+                  <td className="num px-2 py-1.5 text-right text-fg-muted">{formatDateTime(t.closedAt)}</td>
+                  <td className={`num px-3 py-1.5 text-right ${t.pnl > 0 ? 'text-positive' : t.pnl < 0 ? 'text-negative' : ''}`}>{t.pnl > 0 ? '+' : ''}{formatMoney(t.pnl)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </Panel>
       <Panel title="Portfolio allocation" className="col-span-12 md:col-span-6 xl:col-span-4" padded={hasPortfolio} actions={<Button size="xs" variant="ghost" onClick={() => navigate({ page: 'portfolio' })}>Open</Button>}>
         {hasPortfolio ? (

@@ -1,5 +1,5 @@
 import type { IpcResponse } from '@shared/ipc'
-import type { Timeframe, TransactionInput } from '@shared/types'
+import type { Timeframe, TransactionInput, PaperOrderInput, PaperCloseInput } from '@shared/types'
 import type { ScreenDefinition } from '@shared/analysis/screener'
 
 /** Error thrown by the typed API client when the main process reports a failure. */
@@ -63,6 +63,12 @@ export const api = {
     addTransaction: (input: TransactionInput) => unwrap(window.api.portfolio.addTransaction(input)),
     updateTransaction: (id: number, input: TransactionInput) => unwrap(window.api.portfolio.updateTransaction(id, input)),
     deleteTransaction: (id: number) => unwrap(window.api.portfolio.deleteTransaction(id))
+  },
+  paper: {
+    getSnapshot: () => unwrap(window.api.paper.getSnapshot()),
+    reset: (accountId: number, startingBalance?: number, feeRate?: number) => unwrap(window.api.paper.reset(accountId, startingBalance, feeRate)),
+    open: (input: PaperOrderInput) => unwrap(window.api.paper.open(input)),
+    close: (input: PaperCloseInput) => unwrap(window.api.paper.close(input))
   },
   watchlist: {
     list: () => unwrap(window.api.watchlist.list()),

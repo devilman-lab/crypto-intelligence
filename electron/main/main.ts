@@ -14,6 +14,9 @@ import { registerWatchlistHandlers } from './ipc/watchlistHandlers'
 import { registerScreenHandlers } from './ipc/screenHandlers'
 import { registerPortfolioHandlers } from './ipc/portfolioHandlers'
 import { PortfolioRepository } from './database/repositories/portfolioRepository'
+import { PaperRepository } from './database/repositories/paperRepository'
+import { PaperTradingService } from './services/paperTradingService'
+import { registerPaperHandlers } from './ipc/paperHandlers'
 import { ScreenRepository } from './database/repositories/screenRepository'
 import { MarketService } from './market/marketService'
 import { AnalyticsService } from './market/analyticsService'
@@ -63,6 +66,7 @@ async function bootstrap(): Promise<void> {
   registerWatchlistHandlers(ctx)
   registerScreenHandlers(ctx)
   registerPortfolioHandlers(ctx)
+  registerPaperHandlers(ctx)
 
   void ctx.services.market.start(ctx.repos.settings.get())
   ctx.services.analytics.start()
@@ -97,11 +101,12 @@ function buildContext(): AppContext {
     logPath
   }
   const db = openDatabase(paths.dbPath)
-  const repos = { settings: new SettingsRepository(db), marketCache: new MarketCacheRepository(db), watchlists: new WatchlistRepository(db), screens: new ScreenRepository(db), portfolios: new PortfolioRepository(db) }
+  const repos = { settings: new SettingsRepository(db), marketCache: new MarketCacheRepository(db), watchlists: new WatchlistRepository(db), screens: new ScreenRepository(db), portfolios: new PortfolioRepository(db), paper: new PaperRepository(db) }
   const market = new MarketService(repos.marketCache, {
     onTickers: (snapshot) => emit('market:tickers', snapshot),
     onConnectivity: (status) => emit('connectivity:changed', status)
   })
   const analytics = new AnalyticsService(market, repos.marketCache, (s) => emit('analytics:snapshot', s))
-  return { paths, db, repos, services: { market, analytics } }
+  const paper = new PaperTradingService(repos.paper, market)
+  return { paths, db, repos, services: { market, analytics, paper } }
 }

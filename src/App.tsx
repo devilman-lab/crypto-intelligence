@@ -16,6 +16,8 @@ import { AnalysisPage } from '@/pages/AnalysisPage'
 import { VolatilityPage } from '@/pages/VolatilityPage'
 import { ScreenerPage } from '@/pages/ScreenerPage'
 import { PortfolioPage } from '@/pages/PortfolioPage'
+import { PaperTradingPage } from '@/pages/PaperTradingPage'
+import { usePaperStore } from '@/stores/paperStore'
 import { usePortfolioStore } from '@/stores/portfolioStore'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 import { useAnalyticsStore } from '@/stores/analyticsStore'
@@ -40,7 +42,7 @@ function CurrentPage() {
     case 'portfolio':
       return <PortfolioPage />
     case 'paper':
-      return <PlaceholderPage name="Paper Trading" phase={8} />
+      return <PaperTradingPage />
     case 'journal':
       return <PlaceholderPage name="Trading Journal" phase={9} />
     case 'alerts':
@@ -59,6 +61,7 @@ export default function App() {
   const loadWatchlists = useWatchlistStore((s) => s.load)
   const loadAnalytics = useAnalyticsStore((s) => s.load)
   const loadPortfolios = usePortfolioStore((s) => s.load)
+  const loadPaper = usePaperStore((s) => s.load)
   const applyAnalytics = useAnalyticsStore((s) => s.apply)
 
   useEffect(() => {
@@ -67,6 +70,7 @@ export default function App() {
     void loadWatchlists()
     void loadAnalytics()
     void loadPortfolios()
+    void loadPaper()
     const offAnalytics = api.events.on('analytics:snapshot', applyAnalytics)
     void api.market.getStatus().then(setConnectivity).catch(() => undefined)
     const offTickers = api.events.on('market:tickers', applySnapshot)
@@ -83,7 +87,7 @@ export default function App() {
       window.removeEventListener('online', onOnline)
       window.removeEventListener('offline', onOnline)
     }
-  }, [loadSettings, applyRemote, setConnectivity, loadMarket, applySnapshot, loadWatchlists, loadAnalytics, applyAnalytics, loadPortfolios])
+  }, [loadSettings, applyRemote, setConnectivity, loadMarket, applySnapshot, loadWatchlists, loadAnalytics, applyAnalytics, loadPortfolios, loadPaper])
 
   return (
     <TooltipProvider>

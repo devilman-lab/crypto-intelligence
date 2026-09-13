@@ -14,6 +14,9 @@ export function installScreenshotHook(win: BrowserWindow): void {
   const target = process.env['CI_SCREENSHOT']
   if (!target) return
   const delay = Number(process.env['CI_SCREENSHOT_DELAY'] ?? 2500)
+  win.webContents.on('console-message', (event) => {
+    if (event.level === 'error' || event.level === 'warning') log.warn(`renderer console [${event.level}]: ${event.message}`)
+  })
   win.webContents.once('did-finish-load', () => {
     setTimeout(async () => {
       try {

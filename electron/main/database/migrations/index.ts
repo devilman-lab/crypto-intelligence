@@ -117,5 +117,48 @@ export const migrations: Migration[] = [
       );
       CREATE INDEX IF NOT EXISTS idx_transactions_portfolio ON transactions(portfolio_id, timestamp);
     `
+  },
+  {
+    version: 6,
+    name: 'paper_trading',
+    up: `
+      CREATE TABLE IF NOT EXISTS paper_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        starting_balance REAL NOT NULL,
+        cash REAL NOT NULL,
+        fee_rate REAL NOT NULL DEFAULT 0.001,
+        created_at INTEGER NOT NULL,
+        reset_at INTEGER NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS paper_positions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        account_id INTEGER NOT NULL REFERENCES paper_accounts(id) ON DELETE CASCADE,
+        asset_id TEXT NOT NULL,
+        symbol TEXT NOT NULL,
+        side TEXT NOT NULL CHECK (side IN ('long','short')),
+        quantity REAL NOT NULL,
+        entry_price REAL NOT NULL,
+        entry_fees REAL NOT NULL DEFAULT 0,
+        opened_at INTEGER NOT NULL,
+        UNIQUE (account_id, asset_id, side)
+      );
+      CREATE TABLE IF NOT EXISTS paper_trades (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        account_id INTEGER NOT NULL REFERENCES paper_accounts(id) ON DELETE CASCADE,
+        asset_id TEXT NOT NULL,
+        symbol TEXT NOT NULL,
+        side TEXT NOT NULL,
+        quantity REAL NOT NULL,
+        entry_price REAL NOT NULL,
+        exit_price REAL NOT NULL,
+        fees REAL NOT NULL,
+        pnl REAL NOT NULL,
+        roi_pct REAL NOT NULL,
+        opened_at INTEGER NOT NULL,
+        closed_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_paper_trades_account ON paper_trades(account_id, closed_at);
+    `
   }
 ]

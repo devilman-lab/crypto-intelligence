@@ -14,6 +14,12 @@ export function formatCurrency(value: number | null | undefined, currency = 'USD
   }).format(value)
 }
 
+/** Money amounts (P&L, totals) always use 2 decimals regardless of magnitude. */
+export function formatMoney(value: number | null | undefined, currency = 'USD'): string {
+  if (value == null || !Number.isFinite(value)) return '—'
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)
+}
+
 export function formatCompactCurrency(value: number | null | undefined, currency = 'USD'): string {
   if (value == null || !Number.isFinite(value)) return '—'
   const symbol = currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency === 'JPY' ? '¥' : ''

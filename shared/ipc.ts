@@ -6,7 +6,7 @@
  * validation of the arguments; the preload bridge only exposes the channels
  * listed here; the renderer calls them through a typed client.
  */
-import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen, Portfolio, Transaction, TransactionInput } from './types'
+import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen, Portfolio, Transaction, TransactionInput, PaperSnapshot, PaperOrderInput, PaperCloseInput } from './types'
 import type { ScreenDefinition } from './analysis/screener'
 
 export interface IpcInvokeContract {
@@ -36,6 +36,10 @@ export interface IpcInvokeContract {
   'portfolio:addTransaction': { args: [input: TransactionInput]; result: Transaction }
   'portfolio:updateTransaction': { args: [id: number, input: TransactionInput]; result: Transaction }
   'portfolio:deleteTransaction': { args: [id: number]; result: void }
+  'paper:getSnapshot': { args: []; result: PaperSnapshot }
+  'paper:reset': { args: [accountId: number, startingBalance?: number, feeRate?: number]; result: PaperSnapshot }
+  'paper:open': { args: [input: PaperOrderInput]; result: PaperSnapshot }
+  'paper:close': { args: [input: PaperCloseInput]; result: PaperSnapshot }
   'watchlist:list': { args: []; result: Watchlist[] }
   'watchlist:create': { args: [name: string]; result: Watchlist }
   'watchlist:rename': { args: [id: number, name: string]; result: Watchlist }

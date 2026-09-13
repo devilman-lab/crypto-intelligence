@@ -4,6 +4,8 @@ import type { MarketCacheRepository } from './database/repositories/marketCacheR
 import type { WatchlistRepository } from './database/repositories/watchlistRepository'
 import type { ScreenRepository } from './database/repositories/screenRepository'
 import type { PortfolioRepository } from './database/repositories/portfolioRepository'
+import type { PaperRepository } from './database/repositories/paperRepository'
+import type { PaperTradingService } from './services/paperTradingService'
 import type { MarketService } from './market/marketService'
 import type { AnalyticsService } from './market/analyticsService'
 
@@ -27,9 +29,11 @@ export interface AppContext {
     watchlists: WatchlistRepository
     screens: ScreenRepository
     portfolios: PortfolioRepository
+    paper: PaperRepository
   }
   services: {
     market: MarketService
     analytics: AnalyticsService
+    paper: PaperTradingService
   }
 }

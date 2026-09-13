@@ -59,6 +59,12 @@ const api = {
     updateTransaction: (id: number, input: IpcArgs<'portfolio:updateTransaction'>[1]) => invoke('portfolio:updateTransaction', id, input),
     deleteTransaction: (id: number) => invoke('portfolio:deleteTransaction', id)
   },
+  paper: {
+    getSnapshot: () => invoke('paper:getSnapshot'),
+    reset: (accountId: number, startingBalance?: number, feeRate?: number) => invoke('paper:reset', accountId, startingBalance, feeRate),
+    open: (input: IpcArgs<'paper:open'>[0]) => invoke('paper:open', input),
+    close: (input: IpcArgs<'paper:close'>[0]) => invoke('paper:close', input)
+  },
   watchlist: {
     list: () => invoke('watchlist:list'),
     create: (name: string) => invoke('watchlist:create', name),
