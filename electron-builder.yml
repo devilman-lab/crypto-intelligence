@@ -8,6 +8,9 @@ files:
   - out/**/*
   - package.json
   - '!**/*.map'
+extraResources:
+  - from: resources/icons/icon.png
+    to: icon.png
 asarUnpack:
   - node_modules/better-sqlite3/**
 # better-sqlite3 ships Node-API prebuilds; no node-gyp rebuild is needed or possible on machines without a C++ toolchain.

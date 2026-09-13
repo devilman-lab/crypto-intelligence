@@ -1,9 +1,15 @@
-import { BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, shell } from 'electron'
 import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 
+/** Window icon: bundled as an extra resource in packaged builds, read from the repo in development. */
+function iconPath(): string {
+  return app.isPackaged ? join(process.resourcesPath, 'icon.png') : join(app.getAppPath(), 'resources/icons/icon.png')
+}
+
 export function createMainWindow(): BrowserWindow {
   const win = new BrowserWindow({
+    icon: iconPath(),
     width: 1440,
     height: 900,
     minWidth: 1100,
