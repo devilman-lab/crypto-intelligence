@@ -12,6 +12,8 @@ export interface AppInfo {
 /** Connectivity status pushed from the main process to the renderer. */
 export interface ConnectivityStatus {
   online: boolean
+  /** Online, but the last refresh failed for a provider-side reason (rate limit, 5xx). */
+  degraded?: boolean
   /** Unix ms timestamp of the last successful market-data fetch, or null if none yet. */
   lastMarketUpdateAt: number | null
   /** Human-readable reason when offline / degraded (e.g. "rate limited"). */

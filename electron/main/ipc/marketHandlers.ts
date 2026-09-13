@@ -23,4 +23,9 @@ export function registerMarketHandlers(ctx: AppContext): void {
   )
 
   handle('market:getVolume', z.tuple([z.string().min(1).max(128)]), (assetId) => market.getVolume(assetId))
+
+  handle('analytics:getSnapshot', noArgs, () => ctx.services.analytics.getSnapshot())
+  handle('analytics:refresh', noArgs, () => {
+    void ctx.services.analytics.runCycle()
+  })
 }

@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { RefreshCw, Search } from 'lucide-react'
 import type { Ticker } from '@shared/types'
 import { useMarketStore } from '@/stores/marketStore'
+import { useAnalyticsStore } from '@/stores/analyticsStore'
+import { VolPct } from '@/pages/VolatilityPage'
 import { useUiStore } from '@/stores/uiStore'
 import { useDebounce } from '@/hooks/useDebounce'
 import { VirtualTable, type Column } from '@/components/table/VirtualTable'
@@ -17,6 +19,7 @@ import { cn } from '@/lib/cn'
 export function MarketsPage() {
   const { tickers, updatedAt, stale, loading, refreshing, error, refresh } = useMarketStore()
   const navigate = useUiStore((s) => s.navigate)
+  const metrics = useAnalyticsStore((s) => s.metrics)
   const [query, setQuery] = useState('')
   const q = useDebounce(query.trim().toLowerCase())
 
@@ -36,10 +39,10 @@ export function MarketsPage() {
       { key: 'c7d', header: '7d', width: '84px', align: 'right', render: (t) => <PctChange value={t.change7dPct} />, sortValue: (t) => t.change7dPct },
       { key: 'mcap', header: 'Market cap', width: 'minmax(110px, 1fr)', align: 'right', render: (t) => <span className="num">{formatCompactCurrency(t.marketCap)}</span>, sortValue: (t) => t.marketCap },
       { key: 'vol', header: 'Volume 24h', width: 'minmax(110px, 1fr)', align: 'right', render: (t) => <span className="num">{formatCompactCurrency(t.volume24h)}</span>, sortValue: (t) => t.volume24h },
-      { key: 'volat', header: 'Volatility', width: '90px', align: 'right', title: 'Annualized 30-day historical volatility (Phase 5)', render: () => <span className="num text-fg-subtle">—</span> },
-      { key: 'rsi', header: 'RSI', width: '64px', align: 'right', title: 'RSI(14) on daily candles (Phase 4)', render: () => <span className="num text-fg-subtle">—</span> }
+      { key: 'volat', header: 'Vol 7d', width: '96px', align: 'right', title: 'Annualised realised volatility over the last 7 daily returns', render: (t) => <VolPct value={metrics[t.assetId]?.vol7d} />, sortValue: (t) => metrics[t.assetId]?.vol7d ?? null },
+      { key: 'rsi', header: 'RSI', width: '64px', align: 'right', title: 'RSI(14) on daily candles', render: (t) => <RsiCell value={metrics[t.assetId]?.rsi14} />, sortValue: (t) => metrics[t.assetId]?.rsi14 ?? null }
     ],
-    []
+    [metrics]
   )
 
   return (
@@ -72,4 +75,9 @@ export function MarketsPage() {
       />
     </div>
   )
+}
+
+function RsiCell({ value }: { value: number | null | undefined }) {
+  if (value == null) return <span className="num text-fg-subtle">—</span>
+  return <span className={cn('num', value >= 70 && 'text-negative', value <= 30 && 'text-positive')}>{value.toFixed(0)}</span>
 }

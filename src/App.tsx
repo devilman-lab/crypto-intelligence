@@ -13,7 +13,9 @@ import { AssetPage } from '@/pages/AssetPage'
 import { WatchlistPage } from '@/pages/WatchlistPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { AnalysisPage } from '@/pages/AnalysisPage'
+import { VolatilityPage } from '@/pages/VolatilityPage'
 import { useWatchlistStore } from '@/stores/watchlistStore'
+import { useAnalyticsStore } from '@/stores/analyticsStore'
 
 function CurrentPage() {
   const route = useUiStore((s) => s.route)
@@ -27,7 +29,7 @@ function CurrentPage() {
     case 'asset':
       return <AssetPage assetId={route.assetId} />
     case 'volatility':
-      return <PlaceholderPage name="Volatility" phase={5} />
+      return <VolatilityPage />
     case 'screener':
       return <PlaceholderPage name="Screener" phase={6} />
     case 'analysis':
@@ -52,11 +54,15 @@ export default function App() {
   const loadMarket = useMarketStore((s) => s.load)
   const applySnapshot = useMarketStore((s) => s.applySnapshot)
   const loadWatchlists = useWatchlistStore((s) => s.load)
+  const loadAnalytics = useAnalyticsStore((s) => s.load)
+  const applyAnalytics = useAnalyticsStore((s) => s.apply)
 
   useEffect(() => {
     void loadSettings()
     void loadMarket()
     void loadWatchlists()
+    void loadAnalytics()
+    const offAnalytics = api.events.on('analytics:snapshot', applyAnalytics)
     void api.market.getStatus().then(setConnectivity).catch(() => undefined)
     const offTickers = api.events.on('market:tickers', applySnapshot)
     const offSettings = api.events.on('settings:changed', applyRemote)
@@ -67,11 +73,12 @@ export default function App() {
     return () => {
       offSettings()
       offTickers()
+      offAnalytics()
       offConn()
       window.removeEventListener('online', onOnline)
       window.removeEventListener('offline', onOnline)
     }
-  }, [loadSettings, applyRemote, setConnectivity, loadMarket, applySnapshot, loadWatchlists])
+  }, [loadSettings, applyRemote, setConnectivity, loadMarket, applySnapshot, loadWatchlists, loadAnalytics, applyAnalytics])
 
   return (
     <TooltipProvider>

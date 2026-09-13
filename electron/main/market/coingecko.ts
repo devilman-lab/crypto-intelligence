@@ -5,8 +5,8 @@ import type { MarketDataProvider } from './provider'
 import { aggregateCandles } from './candles'
 
 const BASE = 'https://api.coingecko.com/api/v3'
-/** Free/public tier is throttled aggressively; stay well under ~30 req/min. */
-const limiter = new RateLimiter(2500)
+/** Public tier allows roughly 5–15 req/min; stay under that. */
+const DEFAULT_MIN_INTERVAL_MS = 5000
 
 interface CgMarket {
   id: string
@@ -27,9 +27,10 @@ interface CgMarket {
   price_change_percentage_24h_in_currency?: number | null
   price_change_percentage_7d_in_currency?: number | null
   price_change_percentage_30d_in_currency?: number | null
+  sparkline_in_7d?: { price?: unknown[] } | null
 }
 
-const MARKETS_QUERY = 'vs_currency=usd&order=market_cap_desc&sparkline=false&price_change_percentage=1h,24h,7d,30d'
+const MARKETS_QUERY = 'vs_currency=usd&order=market_cap_desc&sparkline=true&price_change_percentage=1h,24h,7d,30d'
 
 /**
  * CoinGecko public API. Source of the asset universe (names, ranks, market
@@ -41,7 +42,20 @@ export class CoinGeckoProvider implements MarketDataProvider {
   readonly name = 'CoinGecko'
   readonly supportedTimeframes: readonly Timeframe[] = ['4h', '1d', '1w']
 
-  constructor(private readonly universeSize = 250) {}
+  /** Hourly 7-day price sparklines captured from the last markets fetch (assetId -> prices). */
+  private sparklines = new Map<string, number[]>()
+  private readonly limiter: RateLimiter
+
+  constructor(
+    private readonly universeSize = 250,
+    minIntervalMs = DEFAULT_MIN_INTERVAL_MS
+  ) {
+    this.limiter = new RateLimiter(minIntervalMs)
+  }
+
+  getSparkline(assetId: string): number[] | undefined {
+    return this.sparklines.get(assetId)
+  }
 
   async getAssets(): Promise<CryptoAsset[]> {
     return (await this.fetchMarkets()).map(toAsset)
@@ -52,7 +66,7 @@ export class CoinGeckoProvider implements MarketDataProvider {
   }
 
   async getTicker(asset: CryptoAsset): Promise<Ticker> {
-    const rows = await fetchJson<CgMarket[]>(`${BASE}/coins/markets?${MARKETS_QUERY}&ids=${encodeURIComponent(asset.id)}`, limiter)
+    const rows = await fetchJson<CgMarket[]>(`${BASE}/coins/markets?${MARKETS_QUERY}&ids=${encodeURIComponent(asset.id)}`, this.limiter)
     const t = Array.isArray(rows) && rows[0] ? toTicker(rows[0]) : null
     if (!t) throw new AppError(ErrorCodes.NOT_FOUND, `No ticker for ${asset.symbol}.`)
     return t
@@ -60,13 +74,13 @@ export class CoinGeckoProvider implements MarketDataProvider {
 
   async getOHLCV(asset: CryptoAsset, timeframe: Timeframe, limit: number): Promise<OHLCV[]> {
     if (timeframe === '4h') {
-      const rows = await fetchJson<unknown[][]>(`${BASE}/coins/${encodeURIComponent(asset.id)}/ohlc?vs_currency=usd&days=30`, limiter)
+      const rows = await fetchJson<unknown[][]>(`${BASE}/coins/${encodeURIComponent(asset.id)}/ohlc?vs_currency=usd&days=30`, this.limiter)
       return parseOhlc(rows).slice(-limit)
     }
     // Daily / weekly: synthesise candles from the daily price series (free tier has no daily OHLC).
     const chart = await fetchJson<{ prices?: unknown[][]; total_volumes?: unknown[][] }>(
-      `${BASE}/coins/${encodeURIComponent(asset.id)}/market_chart?vs_currency=usd&days=365&interval=daily`,
-      limiter
+      `${BASE}/coins/${encodeURIComponent(asset.id)}/market_chart?vs_currency=usd&days=365`,
+      this.limiter
     )
     const daily = synthesiseDaily(chart)
     return (timeframe === '1w' ? aggregateCandles(daily, '1d', '1w') : daily).slice(-limit)
@@ -76,11 +90,21 @@ export class CoinGeckoProvider implements MarketDataProvider {
     const pages = Math.ceil(this.universeSize / 250)
     const out: CgMarket[] = []
     for (let page = 1; page <= pages; page++) {
-      const rows = await fetchJson<CgMarket[]>(`${BASE}/coins/markets?${MARKETS_QUERY}&per_page=250&page=${page}`, limiter)
+      const rows = await fetchJson<CgMarket[]>(`${BASE}/coins/markets?${MARKETS_QUERY}&per_page=250&page=${page}`, this.limiter)
       if (!Array.isArray(rows)) throw new AppError(ErrorCodes.PROVIDER, 'Unexpected response from CoinGecko.')
       out.push(...rows.filter((r) => r && typeof r.id === 'string' && typeof r.symbol === 'string'))
     }
-    return out.slice(0, this.universeSize)
+    const sliced = out.slice(0, this.universeSize)
+    const sparks = new Map<string, number[]>()
+    for (const m of sliced) {
+      const raw = m.sparkline_in_7d?.price
+      if (Array.isArray(raw) && raw.length >= 24) {
+        const prices = raw.map(num).filter((p): p is number => p != null && p > 0)
+        if (prices.length >= 24) sparks.set(m.id, prices)
+      }
+    }
+    if (sparks.size) this.sparklines = sparks
+    return sliced
   }
 }
 

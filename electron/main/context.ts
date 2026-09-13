@@ -3,6 +3,7 @@ import type { SettingsRepository } from './database/repositories/settingsReposit
 import type { MarketCacheRepository } from './database/repositories/marketCacheRepository'
 import type { WatchlistRepository } from './database/repositories/watchlistRepository'
 import type { MarketService } from './market/marketService'
+import type { AnalyticsService } from './market/analyticsService'
 
 export interface AppPaths {
   userData: string
@@ -25,5 +26,6 @@ export interface AppContext {
   }
   services: {
     market: MarketService
+    analytics: AnalyticsService
   }
 }

@@ -38,6 +38,10 @@ const api = {
     getOHLCV: (assetId: string, timeframe: IpcArgs<'market:getOHLCV'>[1], limit?: number) => invoke('market:getOHLCV', assetId, timeframe, limit),
     getVolume: (assetId: string) => invoke('market:getVolume', assetId)
   },
+  analytics: {
+    getSnapshot: () => invoke('analytics:getSnapshot'),
+    refresh: () => invoke('analytics:refresh')
+  },
   watchlist: {
     list: () => invoke('watchlist:list'),
     create: (name: string) => invoke('watchlist:create', name),

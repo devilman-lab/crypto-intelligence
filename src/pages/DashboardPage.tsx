@@ -3,6 +3,9 @@ import { Bell, Briefcase, FlaskConical } from 'lucide-react'
 import type { Ticker } from '@shared/types'
 import { useMarketStore } from '@/stores/marketStore'
 import { useWatchlistStore } from '@/stores/watchlistStore'
+import { useAnalyticsStore } from '@/stores/analyticsStore'
+import { VolPct } from '@/pages/VolatilityPage'
+import { isStablecoin } from '@shared/analysis/classify'
 import { useUiStore } from '@/stores/uiStore'
 import { KpiTile, TickerList } from '@/components/dashboard/widgets'
 import { Panel } from '@/components/ui/Panel'
@@ -19,6 +22,7 @@ export function DashboardPage() {
   const byId = useMarketStore((s) => s.byId)
   const loading = useMarketStore((s) => s.loading)
   const lists = useWatchlistStore((s) => s.lists)
+  const metrics = useAnalyticsStore((s) => s.metrics)
   const navigate = useUiStore((s) => s.navigate)
 
   const btc = byId['bitcoin']
@@ -47,6 +51,15 @@ export function DashboardPage() {
     for (const l of lists) for (const i of l.items) if (!seen.has(i.assetId) && byId[i.assetId]) { seen.add(i.assetId); out.push(byId[i.assetId]!) }
     return out.slice(0, 8)
   }, [lists, byId])
+
+  const volatile = useMemo<Ticker[]>(
+    () =>
+      tickers
+        .filter((t) => (t.volume24h ?? 0) >= MIN_VOLUME && metrics[t.assetId]?.vol7d != null && !isStablecoin(t, metrics[t.assetId]))
+        .sort((a, b) => (metrics[b.assetId]?.vol7d ?? 0) - (metrics[a.assetId]?.vol7d ?? 0))
+        .slice(0, 6),
+    [tickers, metrics]
+  )
 
   const breadthPct = trend.total ? (trend.up / trend.total) * 100 : null
   const trendLabel = breadthPct == null ? '—' : breadthPct >= 60 ? 'Broadly up' : breadthPct <= 40 ? 'Broadly down' : 'Mixed'
@@ -105,9 +118,19 @@ export function DashboardPage() {
           </Button>
         }
       />
-      <Panel title="Highest volatility (30d)" className="col-span-12 md:col-span-6 xl:col-span-4" padded={false}>
-        <div className="p-4 text-center text-xs text-fg-muted">Volatility ranking arrives with the volatility engine (Phase 5).</div>
-      </Panel>
+      <TickerList
+        title="Highest volatility (7d)"
+        tickers={volatile}
+        metricHeader="Vol 7d"
+        metric={(t) => <VolPct value={metrics[t.assetId]?.vol7d} />}
+        className="col-span-12 md:col-span-6 xl:col-span-4"
+        emptyText="Computing volatility from candle history…"
+        actions={
+          <Button size="xs" variant="ghost" onClick={() => navigate({ page: 'volatility' })}>
+            All
+          </Button>
+        }
+      />
       <Panel title="Active alerts" className="col-span-12 md:col-span-6 xl:col-span-4" padded={false}>
         <EmptyState icon={Bell} title="No alerts yet" description="Price, volatility, volume and RSI alerts arrive in Phase 10." />
       </Panel>

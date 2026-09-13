@@ -110,6 +110,11 @@ export class MarketService {
     log.info(`universe loaded: ${assets.length} assets`)
   }
 
+  /** Hourly prices for the last 7 days from CoinGecko (cheap volatility fallback). */
+  getSparkline(assetId: string): number[] | undefined {
+    return this.coingecko.getSparkline(assetId)
+  }
+
   getAsset(assetId: string): CryptoAsset | undefined {
     return this.assets.get(assetId)
   }
@@ -162,7 +167,8 @@ export class MarketService {
       const e = err instanceof AppError ? err : new AppError(ErrorCodes.NETWORK, 'Market data unavailable.', { cause: err })
       log.warn(`ticker refresh failed [${e.code}]: ${e.message}`)
       this.snapshot = { ...this.snapshot, stale: true }
-      this.setStatus({ online: false, lastMarketUpdateAt: this.status.lastMarketUpdateAt, reason: e.message })
+      const offline = e.code === ErrorCodes.NETWORK || e.code === ErrorCodes.TIMEOUT
+      this.setStatus({ online: !offline, degraded: !offline, lastMarketUpdateAt: this.status.lastMarketUpdateAt, reason: e.message })
       this.events.onTickers(this.snapshot)
       throw e
     }
@@ -206,7 +212,7 @@ export class MarketService {
   }
 
   private setStatus(status: ConnectivityStatus): void {
-    const changed = status.online !== this.status.online || status.lastMarketUpdateAt !== this.status.lastMarketUpdateAt || status.reason !== this.status.reason
+    const changed = status.online !== this.status.online || !!status.degraded !== !!this.status.degraded || status.lastMarketUpdateAt !== this.status.lastMarketUpdateAt || status.reason !== this.status.reason
     this.status = status
     if (changed) this.events.onConnectivity(status)
   }

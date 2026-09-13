@@ -18,3 +18,21 @@ Implemented in [shared/analysis/indicators.ts](../shared/analysis/indicators.ts)
 - **Charts** ([IndicatorChart](../src/components/chart/IndicatorChart.tsx)): overlays (SMA/EMA/Bollinger/VWAP) on the price pane, oscillators (RSI/MACD/Stochastic/ATR) in sub-panes. Toggles persist in `chartStore` (localStorage).
 - **Readings** ([IndicatorReadings](../src/components/chart/IndicatorReadings.tsx)): latest values with descriptive labels ("overbought", "price above"). These are statistics of past data, never recommendations.
 - **Performance**: indicators are computed in `useMemo` keyed on the candle array and config; the chart only calls `setData` when candles change and is rebuilt only when the indicator set or theme changes.
+
+## Volatility
+
+Implemented in [shared/analysis/volatility.ts](../shared/analysis/volatility.ts); tested in [tests/volatility.test.ts](../tests/volatility.test.ts).
+
+| Metric | Definition |
+| --- | --- |
+| Log return | `r_t = ln(P_t / P_{t-1})` |
+| Historical volatility | sample standard deviation (n−1) of the trailing `window` log returns, annualised by `√(periods per year)`; crypto year = 365 days (1d → √365, 1h → √8760) |
+| Rolling volatility | the same statistic at every index (streaming sums), used for percentile and change |
+| Volatility percentile | percentile rank of the current 7d volatility among the trailing 365 rolling 7d readings (needs ≥ 30 readings) |
+| Volatility change | `vol7d_now / vol7d_7_candles_ago − 1` |
+| ATR % | ATR(14) on daily candles ÷ last close × 100 |
+| 24h volatility | annualised std-dev of the last 24 **hourly** returns (a single daily return has no dispersion) |
+
+The `AnalyticsService` (main process) computes an `AssetMetrics` record per asset every 15 minutes: Binance-listed assets from 400 daily + 48 hourly candles; all others from CoinGecko's 7-day hourly sparkline (24h/7d volatility only, `source: 'sparkline'`) with full daily metrics filled in gradually (6 CoinGecko-fetched assets per cycle). Results are persisted to `cache_meta` for offline start-up.
+
+All figures are realised (historical) volatility. The UI labels them as statistics of past price movement and never as predictions.

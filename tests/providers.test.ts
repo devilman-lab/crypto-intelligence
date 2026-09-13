@@ -29,7 +29,7 @@ const cgRow = {
 describe('CoinGeckoProvider', () => {
   it('maps markets rows to tickers and skips malformed rows', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(json([cgRow, { id: 'broken', symbol: 'x', current_price: 'abc' }, null, { symbol: 'nope' }]))
-    const tickers = await new CoinGeckoProvider(250).getTickers()
+    const tickers = await new CoinGeckoProvider(250, 0).getTickers()
     expect(tickers).toHaveLength(1)
     const t = tickers[0]!
     expect(t.assetId).toBe('bitcoin')
@@ -46,7 +46,7 @@ describe('CoinGeckoProvider', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       json({ prices: [[t0, 100], [t0 + day, 110], [t0 + 2 * day, 99]], total_volumes: [[t0, 1000], [t0 + day, 2200], [t0 + 2 * day, 990]] })
     )
-    const candles = await new CoinGeckoProvider().getOHLCV({ id: 'x', symbol: 'X', name: 'X', rank: null, imageUrl: null, binanceSymbol: null }, '1d', 10)
+    const candles = await new CoinGeckoProvider(250, 0).getOHLCV({ id: 'x', symbol: 'X', name: 'X', rank: null, imageUrl: null, binanceSymbol: null }, '1d', 10)
     expect(candles).toHaveLength(3)
     expect(candles[1]).toEqual({ time: (t0 + day) / 1000, open: 100, high: 110, low: 100, close: 110, volume: 20 })
     expect(candles[2]?.low).toBe(99)

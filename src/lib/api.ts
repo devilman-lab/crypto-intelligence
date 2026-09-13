@@ -42,6 +42,10 @@ export const api = {
     getOHLCV: (assetId: string, timeframe: Timeframe, limit?: number) => unwrap(window.api.market.getOHLCV(assetId, timeframe, limit)),
     getVolume: (assetId: string) => unwrap(window.api.market.getVolume(assetId))
   },
+  analytics: {
+    getSnapshot: () => unwrap(window.api.analytics.getSnapshot()),
+    refresh: () => unwrap(window.api.analytics.refresh())
+  },
   watchlist: {
     list: () => unwrap(window.api.watchlist.list()),
     create: (name: string) => unwrap(window.api.watchlist.create(name)),

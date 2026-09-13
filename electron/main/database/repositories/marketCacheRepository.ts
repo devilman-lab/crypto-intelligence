@@ -101,6 +101,20 @@ export class MarketCacheRepository {
     })()
   }
 
+  getMetaJson<T>(key: string): T | null {
+    const row = this.getMeta.get(key) as { value: string } | undefined
+    if (!row) return null
+    try {
+      return JSON.parse(row.value) as T
+    } catch {
+      return null
+    }
+  }
+
+  setMetaJson(key: string, value: unknown): void {
+    this.setMeta.run(key, JSON.stringify(value), Date.now())
+  }
+
   loadCandles(assetId: string, timeframe: Timeframe, limit: number): OHLCV[] {
     const rows = this.selectCandles.all(assetId, timeframe, limit) as OHLCV[]
     return rows.reverse()
