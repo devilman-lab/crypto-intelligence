@@ -1,5 +1,5 @@
 import type { IpcResponse } from '@shared/ipc'
-import type { Timeframe, TransactionInput, PaperOrderInput, PaperCloseInput, JournalEntryInput, AlertRuleInput } from '@shared/types'
+import type { Timeframe, TransactionInput, PaperOrderInput, PaperCloseInput, JournalEntryInput, AlertRuleInput, CsvDataset, ImportMode } from '@shared/types'
 import type { ScreenDefinition } from '@shared/analysis/screener'
 import type { HistoryCondition } from '@shared/analysis/history'
 
@@ -88,6 +88,13 @@ export const api = {
   },
   history: {
     analyse: (assetId: string, condition: HistoryCondition, horizon: number) => unwrap(window.api.history.analyse(assetId, condition, horizon))
+  },
+  backup: {
+    exportJson: () => unwrap(window.api.backup.exportJson()),
+    exportCsv: (dataset: CsvDataset) => unwrap(window.api.backup.exportCsv(dataset)),
+    pickImport: () => unwrap(window.api.backup.pickImport()),
+    applyImport: (mode: ImportMode) => unwrap(window.api.backup.applyImport(mode)),
+    cancelImport: () => unwrap(window.api.backup.cancelImport())
   },
   watchlist: {
     list: () => unwrap(window.api.watchlist.list()),

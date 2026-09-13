@@ -20,6 +20,8 @@ import { JournalPage } from '@/pages/JournalPage'
 import { AlertsPage } from '@/pages/AlertsPage'
 import { HistoryPage } from '@/pages/HistoryPage'
 import { useAlertStore } from '@/stores/alertStore'
+import { useJournalStore } from '@/stores/journalStore'
+import { useScreenStore } from '@/stores/screenStore'
 import { usePaperStore } from '@/stores/paperStore'
 import { usePortfolioStore } from '@/stores/portfolioStore'
 import { useWatchlistStore } from '@/stores/watchlistStore'
@@ -80,6 +82,15 @@ export default function App() {
     void loadPaper()
     void loadAlerts()
     const offAlerts = api.events.on('alerts:changed', applyAlerts)
+    const offRestored = api.events.on('data:restored', () => {
+      void loadSettings()
+      void loadWatchlists()
+      void loadPortfolios()
+      void loadPaper()
+      void loadAlerts()
+      void useJournalStore.getState().load()
+      void useScreenStore.getState().load()
+    })
     const offAnalytics = api.events.on('analytics:snapshot', applyAnalytics)
     void api.market.getStatus().then(setConnectivity).catch(() => undefined)
     const offTickers = api.events.on('market:tickers', applySnapshot)
@@ -93,6 +104,7 @@ export default function App() {
       offTickers()
       offAnalytics()
       offAlerts()
+      offRestored()
       offConn()
       window.removeEventListener('online', onOnline)
       window.removeEventListener('offline', onOnline)

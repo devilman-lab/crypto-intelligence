@@ -8,6 +8,7 @@ import type { PaperRepository } from './database/repositories/paperRepository'
 import type { JournalRepository } from './database/repositories/journalRepository'
 import type { AlertRepository } from './database/repositories/alertRepository'
 import type { AlertEngine } from './alerts/alertEngine'
+import type { BackupService } from './services/backupService'
 import type { PaperTradingService } from './services/paperTradingService'
 import type { MarketService } from './market/marketService'
 import type { AnalyticsService } from './market/analyticsService'
@@ -41,5 +42,6 @@ export interface AppContext {
     analytics: AnalyticsService
     paper: PaperTradingService
     alerts: AlertEngine
+    backup: BackupService
   }
 }

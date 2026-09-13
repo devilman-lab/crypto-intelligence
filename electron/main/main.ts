@@ -23,6 +23,8 @@ import { AlertRepository } from './database/repositories/alertRepository'
 import { AlertEngine } from './alerts/alertEngine'
 import { registerAlertHandlers } from './ipc/alertHandlers'
 import { registerHistoryHandlers } from './ipc/historyHandlers'
+import { registerBackupHandlers } from './ipc/backupHandlers'
+import { BackupService } from './services/backupService'
 import { ScreenRepository } from './database/repositories/screenRepository'
 import { MarketService } from './market/marketService'
 import { AnalyticsService } from './market/analyticsService'
@@ -76,6 +78,7 @@ async function bootstrap(): Promise<void> {
   registerJournalHandlers(ctx)
   registerAlertHandlers(ctx)
   registerHistoryHandlers(ctx)
+  registerBackupHandlers(ctx)
 
   void ctx.services.market.start(ctx.repos.settings.get())
   ctx.services.analytics.start()
@@ -126,5 +129,7 @@ function buildContext(): AppContext {
   })
   alerts = new AlertEngine(repos.alerts, repos.settings, market, analytics, (s) => emit('alerts:changed', s))
   const paper = new PaperTradingService(repos.paper, market)
-  return { paths, db, repos, services: { market, analytics, paper, alerts } }
+  const ctx: AppContext = { paths, db, repos, services: { market, analytics, paper, alerts, backup: null as unknown as BackupService } }
+  ctx.services.backup = new BackupService(ctx, () => BrowserWindow.getAllWindows()[0] ?? null)
+  return ctx
 }

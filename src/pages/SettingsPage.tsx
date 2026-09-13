@@ -7,6 +7,7 @@ import { Panel } from '@/components/ui/Panel'
 import { Select } from '@/components/ui/Select'
 import { Switch } from '@/components/ui/Switch'
 import { Button } from '@/components/ui/Button'
+import { BackupPanel } from '@/components/settings/BackupPanel'
 
 function Row({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -105,11 +106,10 @@ export function SettingsPage() {
             <FileText className="h-3.5 w-3.5" /> Open
           </Button>
         </Row>
-        <Row label="Backup / export" hint="Export and restore your data as JSON or CSV.">
-          <Button size="sm" disabled>
-            Coming in Phase 12
-          </Button>
-        </Row>
+      </Panel>
+
+      <Panel title="Backup & export" className="lg:col-span-2">
+        <BackupPanel />
       </Panel>
 
       <Panel title="Application" className="lg:col-span-2">

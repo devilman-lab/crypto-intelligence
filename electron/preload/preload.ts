@@ -83,6 +83,13 @@ const api = {
   history: {
     analyse: (assetId: string, condition: IpcArgs<'history:analyse'>[1], horizon: number) => invoke('history:analyse', assetId, condition, horizon)
   },
+  backup: {
+    exportJson: () => invoke('backup:exportJson'),
+    exportCsv: (dataset: IpcArgs<'backup:exportCsv'>[0]) => invoke('backup:exportCsv', dataset),
+    pickImport: () => invoke('backup:pickImport'),
+    applyImport: (mode: IpcArgs<'backup:applyImport'>[0]) => invoke('backup:applyImport', mode),
+    cancelImport: () => invoke('backup:cancelImport')
+  },
   watchlist: {
     list: () => invoke('watchlist:list'),
     create: (name: string) => invoke('watchlist:create', name),

@@ -6,7 +6,7 @@
  * validation of the arguments; the preload bridge only exposes the channels
  * listed here; the renderer calls them through a typed client.
  */
-import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen, Portfolio, Transaction, TransactionInput, PaperSnapshot, PaperOrderInput, PaperCloseInput, JournalEntry, JournalEntryInput, AlertsSnapshot, AlertRuleInput } from './types'
+import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen, Portfolio, Transaction, TransactionInput, PaperSnapshot, PaperOrderInput, PaperCloseInput, JournalEntry, JournalEntryInput, AlertsSnapshot, AlertRuleInput, BackupSummary, CsvDataset, ImportMode } from './types'
 import type { ScreenDefinition } from './analysis/screener'
 import type { HistoryCondition, HistoryResult } from './analysis/history'
 
@@ -53,6 +53,11 @@ export interface IpcInvokeContract {
   'alerts:delete': { args: [id: number]; result: AlertsSnapshot }
   'alerts:clearTriggers': { args: []; result: AlertsSnapshot }
   'history:analyse': { args: [assetId: string, condition: HistoryCondition, horizon: number]; result: { result: HistoryResult; source: string; stale: boolean; from: number; to: number } }
+  'backup:exportJson': { args: []; result: string | null }
+  'backup:exportCsv': { args: [dataset: CsvDataset]; result: string | null }
+  'backup:pickImport': { args: []; result: BackupSummary | null }
+  'backup:applyImport': { args: [mode: ImportMode]; result: BackupSummary }
+  'backup:cancelImport': { args: []; result: void }
   'watchlist:list': { args: []; result: Watchlist[] }
   'watchlist:create': { args: [name: string]; result: Watchlist }
   'watchlist:rename': { args: [id: number, name: string]; result: Watchlist }
@@ -73,11 +78,13 @@ export interface IpcEventContract {
   'market:tickers': TickerSnapshot
   'analytics:snapshot': AnalyticsSnapshot
   'alerts:changed': AlertsSnapshot
+  /** Emitted after a restore so every store reloads. */
+  'data:restored': null
 }
 export type IpcEvent = keyof IpcEventContract
 export type IpcEventPayload<E extends IpcEvent> = IpcEventContract[E]
 
-export const IPC_EVENTS: readonly IpcEvent[] = ['connectivity:changed', 'settings:changed', 'market:tickers', 'analytics:snapshot', 'alerts:changed']
+export const IPC_EVENTS: readonly IpcEvent[] = ['connectivity:changed', 'settings:changed', 'market:tickers', 'analytics:snapshot', 'alerts:changed', 'data:restored']
 
 /**
  * Serializable error envelope. Handlers never let raw exceptions cross the
