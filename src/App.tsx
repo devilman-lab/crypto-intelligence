@@ -17,6 +17,7 @@ import { VolatilityPage } from '@/pages/VolatilityPage'
 import { ScreenerPage } from '@/pages/ScreenerPage'
 import { PortfolioPage } from '@/pages/PortfolioPage'
 import { PaperTradingPage } from '@/pages/PaperTradingPage'
+import { JournalPage } from '@/pages/JournalPage'
 import { usePaperStore } from '@/stores/paperStore'
 import { usePortfolioStore } from '@/stores/portfolioStore'
 import { useWatchlistStore } from '@/stores/watchlistStore'
@@ -44,7 +45,7 @@ function CurrentPage() {
     case 'paper':
       return <PaperTradingPage />
     case 'journal':
-      return <PlaceholderPage name="Trading Journal" phase={9} />
+      return <JournalPage />
     case 'alerts':
       return <PlaceholderPage name="Alerts" phase={10} />
     case 'watchlist':

@@ -17,6 +17,8 @@ import { PortfolioRepository } from './database/repositories/portfolioRepository
 import { PaperRepository } from './database/repositories/paperRepository'
 import { PaperTradingService } from './services/paperTradingService'
 import { registerPaperHandlers } from './ipc/paperHandlers'
+import { registerJournalHandlers } from './ipc/journalHandlers'
+import { JournalRepository } from './database/repositories/journalRepository'
 import { ScreenRepository } from './database/repositories/screenRepository'
 import { MarketService } from './market/marketService'
 import { AnalyticsService } from './market/analyticsService'
@@ -67,6 +69,7 @@ async function bootstrap(): Promise<void> {
   registerScreenHandlers(ctx)
   registerPortfolioHandlers(ctx)
   registerPaperHandlers(ctx)
+  registerJournalHandlers(ctx)
 
   void ctx.services.market.start(ctx.repos.settings.get())
   ctx.services.analytics.start()
@@ -101,7 +104,7 @@ function buildContext(): AppContext {
     logPath
   }
   const db = openDatabase(paths.dbPath)
-  const repos = { settings: new SettingsRepository(db), marketCache: new MarketCacheRepository(db), watchlists: new WatchlistRepository(db), screens: new ScreenRepository(db), portfolios: new PortfolioRepository(db), paper: new PaperRepository(db) }
+  const repos = { settings: new SettingsRepository(db), marketCache: new MarketCacheRepository(db), watchlists: new WatchlistRepository(db), screens: new ScreenRepository(db), portfolios: new PortfolioRepository(db), paper: new PaperRepository(db), journal: new JournalRepository(db) }
   const market = new MarketService(repos.marketCache, {
     onTickers: (snapshot) => emit('market:tickers', snapshot),
     onConnectivity: (status) => emit('connectivity:changed', status)

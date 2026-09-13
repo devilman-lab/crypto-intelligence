@@ -65,6 +65,13 @@ const api = {
     open: (input: IpcArgs<'paper:open'>[0]) => invoke('paper:open', input),
     close: (input: IpcArgs<'paper:close'>[0]) => invoke('paper:close', input)
   },
+  journal: {
+    list: () => invoke('journal:list'),
+    create: (input: IpcArgs<'journal:create'>[0]) => invoke('journal:create', input),
+    update: (id: number, input: IpcArgs<'journal:update'>[1]) => invoke('journal:update', id, input),
+    delete: (id: number) => invoke('journal:delete', id),
+    strategies: () => invoke('journal:strategies')
+  },
   watchlist: {
     list: () => invoke('watchlist:list'),
     create: (name: string) => invoke('watchlist:create', name),

@@ -160,5 +160,36 @@ export const migrations: Migration[] = [
       );
       CREATE INDEX IF NOT EXISTS idx_paper_trades_account ON paper_trades(account_id, closed_at);
     `
+  },
+  {
+    version: 7,
+    name: 'journal',
+    up: `
+      CREATE TABLE IF NOT EXISTS journal_entries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        asset_id TEXT NOT NULL,
+        symbol TEXT NOT NULL,
+        side TEXT NOT NULL CHECK (side IN ('long','short')),
+        entry_price REAL NOT NULL,
+        exit_price REAL,
+        quantity REAL NOT NULL,
+        fees REAL NOT NULL DEFAULT 0,
+        strategy TEXT NOT NULL DEFAULT '',
+        entry_reason TEXT NOT NULL DEFAULT '',
+        exit_reason TEXT NOT NULL DEFAULT '',
+        result TEXT NOT NULL,
+        emotion TEXT NOT NULL DEFAULT 'neutral',
+        notes TEXT NOT NULL DEFAULT '',
+        screenshot_path TEXT NOT NULL DEFAULT '',
+        tags TEXT NOT NULL DEFAULT '[]',
+        opened_at INTEGER NOT NULL,
+        closed_at INTEGER,
+        pnl REAL,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_journal_opened ON journal_entries(opened_at);
+      CREATE INDEX IF NOT EXISTS idx_journal_asset ON journal_entries(asset_id);
+    `
   }
 ]

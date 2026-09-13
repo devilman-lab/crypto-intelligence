@@ -5,6 +5,7 @@ import type { WatchlistRepository } from './database/repositories/watchlistRepos
 import type { ScreenRepository } from './database/repositories/screenRepository'
 import type { PortfolioRepository } from './database/repositories/portfolioRepository'
 import type { PaperRepository } from './database/repositories/paperRepository'
+import type { JournalRepository } from './database/repositories/journalRepository'
 import type { PaperTradingService } from './services/paperTradingService'
 import type { MarketService } from './market/marketService'
 import type { AnalyticsService } from './market/analyticsService'
@@ -30,6 +31,7 @@ export interface AppContext {
     screens: ScreenRepository
     portfolios: PortfolioRepository
     paper: PaperRepository
+    journal: JournalRepository
   }
   services: {
     market: MarketService

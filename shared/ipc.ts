@@ -6,7 +6,7 @@
  * validation of the arguments; the preload bridge only exposes the channels
  * listed here; the renderer calls them through a typed client.
  */
-import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen, Portfolio, Transaction, TransactionInput, PaperSnapshot, PaperOrderInput, PaperCloseInput } from './types'
+import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen, Portfolio, Transaction, TransactionInput, PaperSnapshot, PaperOrderInput, PaperCloseInput, JournalEntry, JournalEntryInput } from './types'
 import type { ScreenDefinition } from './analysis/screener'
 
 export interface IpcInvokeContract {
@@ -40,6 +40,11 @@ export interface IpcInvokeContract {
   'paper:reset': { args: [accountId: number, startingBalance?: number, feeRate?: number]; result: PaperSnapshot }
   'paper:open': { args: [input: PaperOrderInput]; result: PaperSnapshot }
   'paper:close': { args: [input: PaperCloseInput]; result: PaperSnapshot }
+  'journal:list': { args: []; result: JournalEntry[] }
+  'journal:create': { args: [input: JournalEntryInput]; result: JournalEntry }
+  'journal:update': { args: [id: number, input: JournalEntryInput]; result: JournalEntry }
+  'journal:delete': { args: [id: number]; result: void }
+  'journal:strategies': { args: []; result: string[] }
   'watchlist:list': { args: []; result: Watchlist[] }
   'watchlist:create': { args: [name: string]; result: Watchlist }
   'watchlist:rename': { args: [id: number, name: string]; result: Watchlist }

@@ -133,3 +133,26 @@ describe('paper repository', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 })
+
+describe('journal repository', () => {
+  it('derives pnl/result on create and update, lists strategies, deletes', async () => {
+    const { JournalRepository } = await import('../electron/main/database/repositories/journalRepository')
+    const dir = mkdtempSync(join(tmpdir(), 'ci-db-'))
+    const db = openDatabase(join(dir, 'j.db'))
+    const repo = new JournalRepository(db)
+    const base = { assetId: 'bitcoin', side: 'long' as const, entryPrice: 100, exitPrice: 120, quantity: 2, fees: 1, strategy: 'Breakout', entryReason: '', exitReason: '', emotion: 'calm' as const, notes: '', screenshotPath: '', tags: ['a', 'b'], openedAt: 1_700_000_000_000, closedAt: 1_700_000_100_000 }
+    const e = repo.create(base, 'BTC')
+    expect(e.pnl).toBe(39)
+    expect(e.result).toBe('win')
+    expect(e.tags).toEqual(['a', 'b'])
+    const open = repo.update(e.id, { ...base, exitPrice: null, closedAt: null }, 'BTC')
+    expect(open.pnl).toBeNull()
+    expect(open.result).toBe('open')
+    repo.create({ ...base, strategy: 'Trend' }, 'BTC')
+    expect(repo.strategies()).toEqual(['Breakout', 'Trend'])
+    repo.delete(e.id)
+    expect(repo.list()).toHaveLength(1)
+    db.close()
+    rmSync(dir, { recursive: true, force: true })
+  })
+})
