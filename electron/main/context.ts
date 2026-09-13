@@ -1,6 +1,7 @@
 import type { AppDatabase } from './database/database'
 import type { SettingsRepository } from './database/repositories/settingsRepository'
 import type { MarketCacheRepository } from './database/repositories/marketCacheRepository'
+import type { WatchlistRepository } from './database/repositories/watchlistRepository'
 import type { MarketService } from './market/marketService'
 
 export interface AppPaths {
@@ -20,6 +21,7 @@ export interface AppContext {
   repos: {
     settings: SettingsRepository
     marketCache: MarketCacheRepository
+    watchlists: WatchlistRepository
   }
   services: {
     market: MarketService

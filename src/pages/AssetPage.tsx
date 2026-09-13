@@ -7,6 +7,7 @@ import { TimeframeSelector } from '@/components/chart/TimeframeSelector'
 import { PctChange } from '@/components/market/PctChange'
 import { Panel } from '@/components/ui/Panel'
 import { Badge } from '@/components/ui/Badge'
+import { WatchStar } from '@/components/market/WatchStar'
 import { formatCompactCurrency, formatCurrency, formatDate, formatRelativeTime } from '@/lib/format'
 
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
@@ -46,7 +47,10 @@ export function AssetPage({ assetId }: { assetId: string }) {
         <Stat label="All-time high">
           {formatCurrency(ticker?.ath)} {ticker?.athDate && <span className="text-fg-subtle">({formatDate(ticker.athDate)})</span>}
         </Stat>
-        {ticker?.rank && <Badge className="ml-auto">Rank #{ticker.rank}</Badge>}
+        <div className="ml-auto flex items-center gap-2">
+          {ticker?.rank && <Badge>Rank #{ticker.rank}</Badge>}
+          <WatchStar assetId={assetId} />
+        </div>
       </div>
 
       <Panel

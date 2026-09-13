@@ -42,6 +42,15 @@ export const api = {
     getOHLCV: (assetId: string, timeframe: Timeframe, limit?: number) => unwrap(window.api.market.getOHLCV(assetId, timeframe, limit)),
     getVolume: (assetId: string) => unwrap(window.api.market.getVolume(assetId))
   },
+  watchlist: {
+    list: () => unwrap(window.api.watchlist.list()),
+    create: (name: string) => unwrap(window.api.watchlist.create(name)),
+    rename: (id: number, name: string) => unwrap(window.api.watchlist.rename(id, name)),
+    delete: (id: number) => unwrap(window.api.watchlist.delete(id)),
+    addItem: (id: number, assetId: string) => unwrap(window.api.watchlist.addItem(id, assetId)),
+    removeItem: (id: number, assetId: string) => unwrap(window.api.watchlist.removeItem(id, assetId)),
+    reorder: (id: number, orderedAssetIds: string[]) => unwrap(window.api.watchlist.reorder(id, orderedAssetIds))
+  },
   events: window.api.events
 }
 

@@ -6,7 +6,7 @@
  * validation of the arguments; the preload bridge only exposes the channels
  * listed here; the renderer calls them through a typed client.
  */
-import type { AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData } from './types'
+import type { AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist } from './types'
 
 export interface IpcInvokeContract {
   'app:getInfo': { args: []; result: AppInfo }
@@ -20,6 +20,13 @@ export interface IpcInvokeContract {
   'market:searchAssets': { args: [query: string, limit?: number]; result: CryptoAsset[] }
   'market:getOHLCV': { args: [assetId: string, timeframe: Timeframe, limit?: number]; result: OHLCVResult }
   'market:getVolume': { args: [assetId: string]; result: VolumeData }
+  'watchlist:list': { args: []; result: Watchlist[] }
+  'watchlist:create': { args: [name: string]; result: Watchlist }
+  'watchlist:rename': { args: [id: number, name: string]; result: Watchlist }
+  'watchlist:delete': { args: [id: number]; result: void }
+  'watchlist:addItem': { args: [id: number, assetId: string]; result: Watchlist }
+  'watchlist:removeItem': { args: [id: number, assetId: string]; result: Watchlist }
+  'watchlist:reorder': { args: [id: number, orderedAssetIds: string[]]; result: Watchlist }
 }
 
 export type IpcChannel = keyof IpcInvokeContract

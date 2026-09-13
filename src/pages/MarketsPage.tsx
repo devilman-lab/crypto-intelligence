@@ -7,6 +7,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { VirtualTable, type Column } from '@/components/table/VirtualTable'
 import { AssetCell } from '@/components/market/AssetCell'
 import { PctChange } from '@/components/market/PctChange'
+import { WatchStar } from '@/components/market/WatchStar'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
@@ -26,6 +27,7 @@ export function MarketsPage() {
 
   const columns = useMemo<Column<Ticker>[]>(
     () => [
+      { key: 'star', header: '', width: '32px', align: 'center', render: (t) => <WatchStar assetId={t.assetId} /> },
       { key: 'rank', header: '#', width: '48px', align: 'right', render: (t) => <span className="num text-fg-muted">{t.rank ?? '—'}</span>, sortValue: (t) => t.rank },
       { key: 'asset', header: 'Asset', width: 'minmax(200px, 2fr)', render: (t) => <AssetCell ticker={t} />, sortValue: (t) => t.symbol },
       { key: 'price', header: 'Price', width: 'minmax(110px, 1fr)', align: 'right', render: (t) => <span className="num">{formatCurrency(t.price)}</span>, sortValue: (t) => t.price },

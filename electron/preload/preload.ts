@@ -38,6 +38,15 @@ const api = {
     getOHLCV: (assetId: string, timeframe: IpcArgs<'market:getOHLCV'>[1], limit?: number) => invoke('market:getOHLCV', assetId, timeframe, limit),
     getVolume: (assetId: string) => invoke('market:getVolume', assetId)
   },
+  watchlist: {
+    list: () => invoke('watchlist:list'),
+    create: (name: string) => invoke('watchlist:create', name),
+    rename: (id: number, name: string) => invoke('watchlist:rename', id, name),
+    delete: (id: number) => invoke('watchlist:delete', id),
+    addItem: (id: number, assetId: string) => invoke('watchlist:addItem', id, assetId),
+    removeItem: (id: number, assetId: string) => invoke('watchlist:removeItem', id, assetId),
+    reorder: (id: number, orderedAssetIds: string[]) => invoke('watchlist:reorder', id, orderedAssetIds)
+  },
   events: { on }
 }
 

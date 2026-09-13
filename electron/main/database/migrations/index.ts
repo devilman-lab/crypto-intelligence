@@ -61,5 +61,24 @@ export const migrations: Migration[] = [
         updated_at INTEGER NOT NULL
       );
     `
+  },
+  {
+    version: 3,
+    name: 'watchlists',
+    up: `
+      CREATE TABLE IF NOT EXISTS watchlists (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS watchlist_items (
+        watchlist_id INTEGER NOT NULL REFERENCES watchlists(id) ON DELETE CASCADE,
+        asset_id TEXT NOT NULL,
+        symbol TEXT NOT NULL,
+        position INTEGER NOT NULL,
+        added_at INTEGER NOT NULL,
+        PRIMARY KEY (watchlist_id, asset_id)
+      );
+    `
   }
 ]

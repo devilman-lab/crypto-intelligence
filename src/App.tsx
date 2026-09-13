@@ -10,6 +10,9 @@ import { SettingsPage } from '@/pages/SettingsPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { MarketsPage } from '@/pages/MarketsPage'
 import { AssetPage } from '@/pages/AssetPage'
+import { WatchlistPage } from '@/pages/WatchlistPage'
+import { DashboardPage } from '@/pages/DashboardPage'
+import { useWatchlistStore } from '@/stores/watchlistStore'
 
 function CurrentPage() {
   const route = useUiStore((s) => s.route)
@@ -17,7 +20,7 @@ function CurrentPage() {
     case 'settings':
       return <SettingsPage />
     case 'dashboard':
-      return <PlaceholderPage name="Dashboard" phase={3} />
+      return <DashboardPage />
     case 'markets':
       return <MarketsPage />
     case 'asset':
@@ -37,7 +40,7 @@ function CurrentPage() {
     case 'alerts':
       return <PlaceholderPage name="Alerts" phase={10} />
     case 'watchlist':
-      return <PlaceholderPage name="Watchlist" phase={3} />
+      return <WatchlistPage />
   }
 }
 
@@ -47,10 +50,12 @@ export default function App() {
   const setConnectivity = useConnectivityStore((s) => s.set)
   const loadMarket = useMarketStore((s) => s.load)
   const applySnapshot = useMarketStore((s) => s.applySnapshot)
+  const loadWatchlists = useWatchlistStore((s) => s.load)
 
   useEffect(() => {
     void loadSettings()
     void loadMarket()
+    void loadWatchlists()
     void api.market.getStatus().then(setConnectivity).catch(() => undefined)
     const offTickers = api.events.on('market:tickers', applySnapshot)
     const offSettings = api.events.on('settings:changed', applyRemote)
@@ -65,7 +70,7 @@ export default function App() {
       window.removeEventListener('online', onOnline)
       window.removeEventListener('offline', onOnline)
     }
-  }, [loadSettings, applyRemote, setConnectivity, loadMarket, applySnapshot])
+  }, [loadSettings, applyRemote, setConnectivity, loadMarket, applySnapshot, loadWatchlists])
 
   return (
     <TooltipProvider>

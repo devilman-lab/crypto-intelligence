@@ -9,6 +9,8 @@ import { registerAppHandlers } from './ipc/appHandlers'
 import { registerSettingsHandlers } from './ipc/settingsHandlers'
 import { registerMarketHandlers } from './ipc/marketHandlers'
 import { MarketCacheRepository } from './database/repositories/marketCacheRepository'
+import { WatchlistRepository } from './database/repositories/watchlistRepository'
+import { registerWatchlistHandlers } from './ipc/watchlistHandlers'
 import { MarketService } from './market/marketService'
 import { emit } from './ipc/registry'
 import { createMainWindow } from './window'
@@ -53,6 +55,7 @@ async function bootstrap(): Promise<void> {
   registerAppHandlers(ctx)
   registerSettingsHandlers(ctx)
   registerMarketHandlers(ctx)
+  registerWatchlistHandlers(ctx)
 
   void ctx.services.market.start(ctx.repos.settings.get())
 
@@ -85,7 +88,7 @@ function buildContext(): AppContext {
     logPath
   }
   const db = openDatabase(paths.dbPath)
-  const repos = { settings: new SettingsRepository(db), marketCache: new MarketCacheRepository(db) }
+  const repos = { settings: new SettingsRepository(db), marketCache: new MarketCacheRepository(db), watchlists: new WatchlistRepository(db) }
   const market = new MarketService(repos.marketCache, {
     onTickers: (snapshot) => emit('market:tickers', snapshot),
     onConnectivity: (status) => emit('connectivity:changed', status)
