@@ -1,14 +1,9 @@
-import { useState } from 'react'
-import type { Timeframe } from '@shared/types'
 import { useMarketStore } from '@/stores/marketStore'
-import { useOHLCV } from '@/hooks/useOHLCV'
-import { CandleChart } from '@/components/chart/CandleChart'
-import { TimeframeSelector } from '@/components/chart/TimeframeSelector'
+import { AssetChartView } from '@/components/chart/AssetChartView'
 import { PctChange } from '@/components/market/PctChange'
-import { Panel } from '@/components/ui/Panel'
 import { Badge } from '@/components/ui/Badge'
 import { WatchStar } from '@/components/market/WatchStar'
-import { formatCompactCurrency, formatCurrency, formatDate, formatRelativeTime } from '@/lib/format'
+import { formatCompactCurrency, formatCurrency, formatDate } from '@/lib/format'
 
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -21,8 +16,6 @@ function Stat({ label, children }: { label: string; children: React.ReactNode })
 
 export function AssetPage({ assetId }: { assetId: string }) {
   const ticker = useMarketStore((s) => s.byId[assetId])
-  const [timeframe, setTimeframe] = useState<Timeframe>('1d')
-  const { data, loading, error } = useOHLCV(assetId, timeframe)
 
   return (
     <div className="flex h-full flex-col gap-3">
@@ -53,33 +46,7 @@ export function AssetPage({ assetId }: { assetId: string }) {
         </div>
       </div>
 
-      <Panel
-        title="Price chart"
-        padded={false}
-        className="min-h-[360px] flex-1"
-        actions={
-          <>
-            {data && (
-              <span className="mr-2 text-[11px] text-fg-subtle">
-                {data.candles.length} candles · {data.source}
-                {data.updatedAt ? ` · ${formatRelativeTime(data.updatedAt)}` : ''}
-              </span>
-            )}
-            {data?.stale && <Badge tone="warning">Cached</Badge>}
-            <TimeframeSelector value={timeframe} onChange={setTimeframe} />
-          </>
-        }
-      >
-        <div className="relative h-full min-h-[320px]">
-          {data && data.candles.length > 0 && <CandleChart candles={data.candles} className="absolute inset-0" />}
-          {loading && !data && <div className="absolute inset-0 flex items-center justify-center text-xs text-fg-muted">Loading candles…</div>}
-          {error && !data && <div className="absolute inset-0 flex items-center justify-center text-xs text-warning">{error}</div>}
-        </div>
-      </Panel>
-
-      <Panel title="Technical indicators" className="shrink-0">
-        <div className="text-xs text-fg-muted">Indicator overlays and oscillators (SMA, EMA, RSI, MACD, Bollinger Bands, ATR, Stochastic, VWAP) arrive in Phase 4.</div>
-      </Panel>
+      <AssetChartView key={assetId} assetId={assetId} />
     </div>
   )
 }

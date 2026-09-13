@@ -19,7 +19,10 @@ export function chartOptions(): DeepPartial<ChartOptions> {
     rightPriceScale: { borderColor: border },
     timeScale: { borderColor: border, timeVisible: true, secondsVisible: false, rightOffset: 4 },
     crosshair: { mode: 0 },
-    localization: { locale: 'en-US' }
+    localization: {
+      locale: 'en-US',
+      priceFormatter: (p: number) => (Math.abs(p) >= 1000 ? p.toLocaleString('en-US', { maximumFractionDigits: 2 }) : p.toLocaleString('en-US', { maximumFractionDigits: Math.abs(p) >= 1 ? 2 : Math.abs(p) >= 0.01 ? 4 : 6 }))
+    }
   }
 }
 

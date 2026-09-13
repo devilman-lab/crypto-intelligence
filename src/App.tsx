@@ -12,6 +12,7 @@ import { MarketsPage } from '@/pages/MarketsPage'
 import { AssetPage } from '@/pages/AssetPage'
 import { WatchlistPage } from '@/pages/WatchlistPage'
 import { DashboardPage } from '@/pages/DashboardPage'
+import { AnalysisPage } from '@/pages/AnalysisPage'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 
 function CurrentPage() {
@@ -30,7 +31,7 @@ function CurrentPage() {
     case 'screener':
       return <PlaceholderPage name="Screener" phase={6} />
     case 'analysis':
-      return <PlaceholderPage name="Technical Analysis" phase={4} />
+      return <AnalysisPage />
     case 'portfolio':
       return <PlaceholderPage name="Portfolio" phase={7} />
     case 'paper':
