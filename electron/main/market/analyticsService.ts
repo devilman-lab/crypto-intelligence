@@ -96,6 +96,10 @@ export class AnalyticsService {
     try {
       for (const asset of assets) {
         if (this.stopped) break
+        if (!this.market.getStatus().online) {
+          log.info('metrics cycle paused: offline')
+          break
+        }
         try {
           const m = await this.computeAsset(asset)
           if (m) this.metrics.set(asset.id, m)

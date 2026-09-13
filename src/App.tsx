@@ -6,6 +6,7 @@ import { useSettingsStore } from '@/stores/settingsStore'
 import { useConnectivityStore } from '@/stores/connectivityStore'
 import { useMarketStore } from '@/stores/marketStore'
 import { api } from '@/lib/api'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { MarketsPage } from '@/pages/MarketsPage'
 import { AssetPage } from '@/pages/AssetPage'
@@ -60,6 +61,7 @@ function CurrentPage() {
 }
 
 export default function App() {
+  const currency = useSettingsStore((s) => s.settings.currency)
   const loadSettings = useSettingsStore((s) => s.load)
   const applyRemote = useSettingsStore((s) => s.applyRemote)
   const setConnectivity = useConnectivityStore((s) => s.set)
@@ -114,7 +116,9 @@ export default function App() {
   return (
     <TooltipProvider>
       <AppShell>
-        <CurrentPage />
+        <ErrorBoundary onReset={() => useUiStore.getState().navigate({ page: 'dashboard' })}>
+          <CurrentPage key={currency} />
+        </ErrorBoundary>
       </AppShell>
     </TooltipProvider>
   )

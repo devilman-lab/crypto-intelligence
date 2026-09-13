@@ -71,6 +71,8 @@ export interface VolumeData {
 
 export interface TickerSnapshot {
   tickers: Ticker[]
+  /** USD → currency multipliers (e.g. { USD: 1, EUR: 0.86 }). */
+  fxRates: Record<string, number>
   /** Unix ms when the snapshot was fetched from the provider. */
   updatedAt: number | null
   /** True when the data comes from the local cache because a live fetch failed. */

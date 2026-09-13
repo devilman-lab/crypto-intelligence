@@ -11,6 +11,7 @@ import type { MarketDataProvider } from './provider'
 const log = createLogger('market')
 const UNIVERSE_TTL_MS = 24 * 3600_000
 const MIN_REFRESH_MS = 30_000
+const FX_TTL_MS = 30 * 60_000
 
 export interface MarketEvents {
   onTickers: (snapshot: TickerSnapshot) => void
@@ -37,7 +38,9 @@ export class MarketService {
   private assets = new Map<string, CryptoAsset>()
   private assetsBySymbol = new Map<string, CryptoAsset>()
   private assetsUpdatedAt: number | null = null
-  private snapshot: TickerSnapshot = { tickers: [], updatedAt: null, stale: true, provider: 'coingecko' }
+  private snapshot: TickerSnapshot = { tickers: [], fxRates: { USD: 1 }, updatedAt: null, stale: true, provider: 'coingecko' }
+  private fxRates: Record<string, number> = { USD: 1 }
+  private fxFetchedAt = 0
   /** Per asset/timeframe: when candles were last fetched and how many were requested. */
   private candleFetches = new Map<string, { at: number; limit: number }>()
   private status: ConnectivityStatus = { online: true, lastMarketUpdateAt: null }
@@ -55,7 +58,8 @@ export class MarketService {
     this.setAssets(cachedAssets.assets, cachedAssets.updatedAt)
     const cachedTickers = this.cache.loadTickers()
     if (cachedTickers.tickers.length) {
-      this.snapshot = { tickers: cachedTickers.tickers, updatedAt: cachedTickers.updatedAt, stale: true, provider: cachedTickers.provider ?? 'cache' }
+      this.fxRates = this.cache.getMetaJson<Record<string, number>>('fx_rates') ?? { USD: 1 }
+      this.snapshot = { tickers: cachedTickers.tickers, fxRates: this.fxRates, updatedAt: cachedTickers.updatedAt, stale: true, provider: cachedTickers.provider ?? 'cache' }
       this.status = { ...this.status, lastMarketUpdateAt: cachedTickers.updatedAt }
     }
     void this.refreshTickers().catch(() => undefined)
@@ -158,7 +162,8 @@ export class MarketService {
       const provider = this.provider()
       const raw = await provider.getTickers()
       const tickers = this.mergeIntoUniverse(raw, provider.id)
-      this.snapshot = { tickers, updatedAt: Date.now(), stale: false, provider: provider.id }
+      await this.refreshFx()
+      this.snapshot = { tickers, fxRates: this.fxRates, updatedAt: Date.now(), stale: false, provider: provider.id }
       this.cache.saveTickers(tickers, provider.id)
       this.setStatus({ online: true, lastMarketUpdateAt: this.snapshot.updatedAt })
       this.events.onTickers(this.snapshot)
@@ -172,6 +177,17 @@ export class MarketService {
       this.setStatus({ online: !offline, degraded: !offline, lastMarketUpdateAt: this.status.lastMarketUpdateAt, reason: e.message })
       this.events.onTickers(this.snapshot)
       throw e
+    }
+  }
+
+  private async refreshFx(): Promise<void> {
+    if (Date.now() - this.fxFetchedAt < FX_TTL_MS) return
+    try {
+      this.fxRates = await this.coingecko.getFxRates()
+      this.fxFetchedAt = Date.now()
+      this.cache.setMetaJson('fx_rates', this.fxRates)
+    } catch (err) {
+      log.debug(`fx refresh failed: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 

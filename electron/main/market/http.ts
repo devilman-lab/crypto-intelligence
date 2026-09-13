@@ -67,6 +67,8 @@ export async function fetchJson<T>(url: string, limiter: RateLimiter, opts: Http
 }
 
 async function doFetch<T>(url: string, timeoutMs: number, headers: Record<string, string> | undefined, limiter: RateLimiter): Promise<T> {
+  // Diagnostics: CI_OFFLINE=1 simulates a network outage (used to verify offline behaviour).
+  if (process.env['CI_OFFLINE']) throw new AppError(ErrorCodes.NETWORK, 'Could not reach the market data provider.')
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   let res: Response

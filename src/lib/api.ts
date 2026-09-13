@@ -29,7 +29,10 @@ export const api = {
   app: {
     getInfo: () => unwrap(window.api.app.getInfo()),
     openExternal: (url: string) => unwrap(window.api.app.openExternal(url)),
-    openPath: (path: string) => unwrap(window.api.app.openPath(path))
+    openPath: (path: string) => unwrap(window.api.app.openPath(path)),
+    checkForUpdates: () => unwrap(window.api.app.checkForUpdates()),
+    downloadUpdate: () => unwrap(window.api.app.downloadUpdate()),
+    installUpdate: () => unwrap(window.api.app.installUpdate())
   },
   settings: {
     get: () => unwrap(window.api.settings.get()),

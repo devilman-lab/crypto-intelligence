@@ -8,6 +8,7 @@ import { Select } from '@/components/ui/Select'
 import { Switch } from '@/components/ui/Switch'
 import { Button } from '@/components/ui/Button'
 import { BackupPanel } from '@/components/settings/BackupPanel'
+import { UpdateRow } from '@/components/settings/UpdateRow'
 
 function Row({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -71,9 +72,10 @@ export function SettingsPage() {
             className="w-32"
           />
         </Row>
-        <Row label="Currency">
+        <Row label="Display currency" hint="Prices and P&L are converted for display. Values you enter are always in USD.">
           <Select
             value={settings.currency}
+            aria-label="Display currency"
             onValueChange={(currency) => void update({ currency })}
             options={[
               { value: 'USD', label: 'USD' },
@@ -116,11 +118,7 @@ export function SettingsPage() {
         <Row label="Version">
           <span className="num text-xs">{info ? `${info.version} · Electron ${info.electronVersion}` : '…'}</span>
         </Row>
-        <Row label="Check for updates" hint="Automatic updates will be delivered through the release channel.">
-          <Button size="sm" disabled>
-            Not available yet
-          </Button>
-        </Row>
+        <UpdateRow />
         <Row label="AI module" hint="Optional module for market summaries and natural-language screening. Not included in this version.">
           <Switch checked={false} onCheckedChange={() => undefined} disabled />
         </Row>

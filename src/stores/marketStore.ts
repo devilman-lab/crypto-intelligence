@@ -1,9 +1,11 @@
 import { create } from 'zustand'
 import type { Ticker, TickerSnapshot } from '@shared/types'
 import { api, errorMessage } from '@/lib/api'
+import { syncDisplayCurrency } from '@/lib/displayCurrency'
 
 interface MarketState {
   tickers: Ticker[]
+  fxRates: Record<string, number>
   byId: Record<string, Ticker>
   updatedAt: number | null
   stale: boolean
@@ -25,6 +27,7 @@ function index(tickers: Ticker[]): Record<string, Ticker> {
 /** Live market snapshot pushed from the main process. */
 export const useMarketStore = create<MarketState>((set) => ({
   tickers: [],
+  fxRates: { USD: 1 },
   byId: {},
   updatedAt: null,
   stale: true,
@@ -35,7 +38,8 @@ export const useMarketStore = create<MarketState>((set) => ({
   load: async () => {
     try {
       const s = await api.market.getSnapshot()
-      set({ tickers: s.tickers, byId: index(s.tickers), updatedAt: s.updatedAt, stale: s.stale, provider: s.provider, loading: false, error: null })
+      syncDisplayCurrency({ rates: s.fxRates })
+      set({ tickers: s.tickers, fxRates: s.fxRates, byId: index(s.tickers), updatedAt: s.updatedAt, stale: s.stale, provider: s.provider, loading: false, error: null })
     } catch (err) {
       set({ loading: false, error: errorMessage(err) })
     }
@@ -44,12 +48,16 @@ export const useMarketStore = create<MarketState>((set) => ({
     set({ refreshing: true })
     try {
       const s = await api.market.refresh()
-      set({ tickers: s.tickers, byId: index(s.tickers), updatedAt: s.updatedAt, stale: s.stale, provider: s.provider, error: null })
+      syncDisplayCurrency({ rates: s.fxRates })
+      set({ tickers: s.tickers, fxRates: s.fxRates, byId: index(s.tickers), updatedAt: s.updatedAt, stale: s.stale, provider: s.provider, error: null })
     } catch (err) {
       set({ error: errorMessage(err) })
     } finally {
       set({ refreshing: false })
     }
   },
-  applySnapshot: (s) => set({ tickers: s.tickers, byId: index(s.tickers), updatedAt: s.updatedAt, stale: s.stale, provider: s.provider, loading: false })
+  applySnapshot: (s) => {
+    syncDisplayCurrency({ rates: s.fxRates })
+    set({ tickers: s.tickers, fxRates: s.fxRates, byId: index(s.tickers), updatedAt: s.updatedAt, stale: s.stale, provider: s.provider, loading: false })
+  }
 }))

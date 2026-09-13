@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { DEFAULT_SETTINGS, type AppSettings, type ThemeMode } from '@shared/types'
 import { api, errorMessage } from '@/lib/api'
+import { syncDisplayCurrency } from '@/lib/displayCurrency'
 
 interface SettingsState {
   settings: AppSettings
@@ -18,6 +19,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   load: async () => {
     try {
       const settings = await api.settings.get()
+      syncDisplayCurrency({ currency: settings.currency })
       set({ settings, loaded: true, error: null })
       applyTheme(settings.theme)
     } catch (err) {
@@ -27,6 +29,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   update: async (patch) => {
     try {
       const settings = await api.settings.update(patch)
+      syncDisplayCurrency({ currency: settings.currency })
       set({ settings, error: null })
       applyTheme(settings.theme)
     } catch (err) {
@@ -34,6 +37,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     }
   },
   applyRemote: (settings) => {
+    syncDisplayCurrency({ currency: settings.currency })
     set({ settings })
     applyTheme(settings.theme)
   }

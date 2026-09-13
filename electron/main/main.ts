@@ -25,6 +25,8 @@ import { registerAlertHandlers } from './ipc/alertHandlers'
 import { registerHistoryHandlers } from './ipc/historyHandlers'
 import { registerBackupHandlers } from './ipc/backupHandlers'
 import { BackupService } from './services/backupService'
+import { GitHubReleasesUpdateService } from './services/updateService'
+import { NullAIService } from './services/aiService'
 import { ScreenRepository } from './database/repositories/screenRepository'
 import { MarketService } from './market/marketService'
 import { AnalyticsService } from './market/analyticsService'
@@ -129,7 +131,7 @@ function buildContext(): AppContext {
   })
   alerts = new AlertEngine(repos.alerts, repos.settings, market, analytics, (s) => emit('alerts:changed', s))
   const paper = new PaperTradingService(repos.paper, market)
-  const ctx: AppContext = { paths, db, repos, services: { market, analytics, paper, alerts, backup: null as unknown as BackupService } }
+  const ctx: AppContext = { paths, db, repos, services: { market, analytics, paper, alerts, backup: null as unknown as BackupService, updates: new GitHubReleasesUpdateService(), ai: new NullAIService() } }
   ctx.services.backup = new BackupService(ctx, () => BrowserWindow.getAllWindows()[0] ?? null)
   return ctx
 }

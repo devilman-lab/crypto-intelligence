@@ -24,7 +24,10 @@ const api = {
   app: {
     getInfo: () => invoke('app:getInfo'),
     openExternal: (url: string) => invoke('app:openExternal', url),
-    openPath: (path: string) => invoke('app:openPath', path)
+    openPath: (path: string) => invoke('app:openPath', path),
+    checkForUpdates: () => invoke('app:checkForUpdates'),
+    downloadUpdate: () => invoke('app:downloadUpdate'),
+    installUpdate: () => invoke('app:installUpdate')
   },
   settings: {
     get: () => invoke('settings:get'),

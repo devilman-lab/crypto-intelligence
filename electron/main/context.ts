@@ -9,6 +9,8 @@ import type { JournalRepository } from './database/repositories/journalRepositor
 import type { AlertRepository } from './database/repositories/alertRepository'
 import type { AlertEngine } from './alerts/alertEngine'
 import type { BackupService } from './services/backupService'
+import type { UpdateService } from './services/updateService'
+import type { AIService } from './services/aiService'
 import type { PaperTradingService } from './services/paperTradingService'
 import type { MarketService } from './market/marketService'
 import type { AnalyticsService } from './market/analyticsService'
@@ -43,5 +45,8 @@ export interface AppContext {
     paper: PaperTradingService
     alerts: AlertEngine
     backup: BackupService
+    updates: UpdateService
+    /** Optional future module; NullAIService in the MVP. */
+    ai: AIService
   }
 }

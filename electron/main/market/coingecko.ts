@@ -57,6 +57,20 @@ export class CoinGeckoProvider implements MarketDataProvider {
     return this.sparklines.get(assetId)
   }
 
+  /** USD → other currency multipliers derived from BTC quotes (1 request). */
+  async getFxRates(): Promise<Record<string, number>> {
+    const res = await fetchJson<{ bitcoin?: Record<string, unknown> }>(`${BASE}/simple/price?ids=bitcoin&vs_currencies=usd,eur,gbp,jpy`, this.limiter)
+    const q = res.bitcoin ?? {}
+    const usd = num(q['usd'])
+    if (!usd) throw new AppError(ErrorCodes.PROVIDER, 'No FX reference price.')
+    const out: Record<string, number> = { USD: 1 }
+    for (const [k, v] of Object.entries(q)) {
+      const n = num(v)
+      if (n && k !== 'usd') out[k.toUpperCase()] = n / usd
+    }
+    return out
+  }
+
   async getAssets(): Promise<CryptoAsset[]> {
     return (await this.fetchMarkets()).map(toAsset)
   }

@@ -31,7 +31,7 @@ export function AssetChartView({ assetId, initialTimeframe = '1d', showReadings 
   return (
     <>
       <Panel
-        title="Price chart"
+        title="Price chart (USD)"
         padded={false}
         className={chartClassName ?? 'min-h-[420px] flex-1'}
         actions={

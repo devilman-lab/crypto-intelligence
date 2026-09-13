@@ -26,6 +26,10 @@ export function registerAppHandlers(ctx: AppContext): void {
     await shell.openExternal(url)
   })
 
+  handle('app:checkForUpdates', noArgs, () => ctx.services.updates.check())
+  handle('app:downloadUpdate', noArgs, () => ctx.services.updates.download())
+  handle('app:installUpdate', noArgs, () => ctx.services.updates.install())
+
   // Restricted to the app's own data/log directories.
   handle('app:openPath', z.tuple([z.string().max(1024)]), async (path) => {
     const allowed = [ctx.paths.userData, ctx.paths.logDir]

@@ -10,10 +10,21 @@ import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, Crypt
 import type { ScreenDefinition } from './analysis/screener'
 import type { HistoryCondition, HistoryResult } from './analysis/history'
 
+export type UpdateStatus =
+  | { state: 'unavailable'; reason: string }
+  | { state: 'checking' }
+  | { state: 'up-to-date'; version: string }
+  | { state: 'available'; version: string; releaseNotes?: string }
+  | { state: 'downloaded'; version: string }
+  | { state: 'error'; message: string }
+
 export interface IpcInvokeContract {
   'app:getInfo': { args: []; result: AppInfo }
   'app:openExternal': { args: [url: string]; result: void }
   'app:openPath': { args: [path: string]; result: void }
+  'app:checkForUpdates': { args: []; result: UpdateStatus }
+  'app:downloadUpdate': { args: []; result: UpdateStatus }
+  'app:installUpdate': { args: []; result: void }
   'settings:get': { args: []; result: AppSettings }
   'settings:update': { args: [patch: Partial<AppSettings>]; result: AppSettings }
   'market:getSnapshot': { args: []; result: TickerSnapshot }

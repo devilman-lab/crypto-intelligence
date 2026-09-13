@@ -1,9 +1,22 @@
 /** Number/currency formatting helpers used across tables and cards. */
 
+/**
+ * Display currency. All stored values are USD; formatting converts with the
+ * latest FX multiplier. Inputs (transaction prices, order sizes) stay in USD.
+ */
+let display = { code: 'USD', rate: 1 }
+export function setDisplayCurrency(code: string, rate: number): void {
+  display = { code, rate: Number.isFinite(rate) && rate > 0 ? rate : 1 }
+}
+export function displayCurrency(): { code: string; rate: number } {
+  return display
+}
+
 const compact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 })
 
-export function formatCurrency(value: number | null | undefined, currency = 'USD'): string {
+export function formatCurrency(value: number | null | undefined, currency = display.code): string {
   if (value == null || !Number.isFinite(value)) return '—'
+  value = value * (currency === display.code ? display.rate : 1)
   const abs = Math.abs(value)
   const digits = abs >= 1000 ? 2 : abs >= 1 ? 2 : abs >= 0.01 ? 4 : 6
   return new Intl.NumberFormat('en-US', {
@@ -15,13 +28,15 @@ export function formatCurrency(value: number | null | undefined, currency = 'USD
 }
 
 /** Money amounts (P&L, totals) always use 2 decimals regardless of magnitude. */
-export function formatMoney(value: number | null | undefined, currency = 'USD'): string {
+export function formatMoney(value: number | null | undefined, currency = display.code): string {
   if (value == null || !Number.isFinite(value)) return '—'
+  value = value * (currency === display.code ? display.rate : 1)
   return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)
 }
 
-export function formatCompactCurrency(value: number | null | undefined, currency = 'USD'): string {
+export function formatCompactCurrency(value: number | null | undefined, currency = display.code): string {
   if (value == null || !Number.isFinite(value)) return '—'
+  value = value * (currency === display.code ? display.rate : 1)
   const symbol = currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency === 'JPY' ? '¥' : ''
   return `${value < 0 ? '-' : ''}${symbol}${compact.format(Math.abs(value))}`
 }
