@@ -1,0 +1,36 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-bg: #0b0e14;
+  --color-surface: #10141c;
+  --color-surface-2: #161b25;
+  --color-border: #1f2632;
+  --color-border-strong: #2c3544;
+  --color-fg: #e6e9ef;
+  --color-fg-muted: #8b94a7;
+  --color-fg-subtle: #5b6579;
+  --color-accent: #4f8cff;
+  --color-positive: #16c784;
+  --color-negative: #ea3943;
+  --color-warning: #f5a524;
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-bg text-fg font-sans antialiased;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.grid-bg {
+  background-image: linear-gradient(to right, rgb(255 255 255 / 0.035) 1px, transparent 1px), linear-gradient(to bottom, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+}
