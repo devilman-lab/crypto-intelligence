@@ -20,6 +20,7 @@ export function registerSettingsHandlers(ctx: AppContext): void {
   handle('settings:update', z.tuple([settingsPatchSchema]), (patch) => {
     const next = ctx.repos.settings.update(patch)
     emit('settings:changed', next)
+    ctx.services.market.applySettings(next)
     return next
   })
 }

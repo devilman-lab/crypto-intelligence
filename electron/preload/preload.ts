@@ -30,6 +30,14 @@ const api = {
     get: () => invoke('settings:get'),
     update: (patch: IpcArgs<'settings:update'>[0]) => invoke('settings:update', patch)
   },
+  market: {
+    getSnapshot: () => invoke('market:getSnapshot'),
+    refresh: () => invoke('market:refresh'),
+    getStatus: () => invoke('market:getStatus'),
+    searchAssets: (query: string, limit?: number) => invoke('market:searchAssets', query, limit),
+    getOHLCV: (assetId: string, timeframe: IpcArgs<'market:getOHLCV'>[1], limit?: number) => invoke('market:getOHLCV', assetId, timeframe, limit),
+    getVolume: (assetId: string) => invoke('market:getVolume', assetId)
+  },
   events: { on }
 }
 

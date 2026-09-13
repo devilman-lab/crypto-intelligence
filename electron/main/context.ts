@@ -1,5 +1,7 @@
 import type { AppDatabase } from './database/database'
 import type { SettingsRepository } from './database/repositories/settingsRepository'
+import type { MarketCacheRepository } from './database/repositories/marketCacheRepository'
+import type { MarketService } from './market/marketService'
 
 export interface AppPaths {
   userData: string
@@ -17,5 +19,9 @@ export interface AppContext {
   db: AppDatabase
   repos: {
     settings: SettingsRepository
+    marketCache: MarketCacheRepository
+  }
+  services: {
+    market: MarketService
   }
 }

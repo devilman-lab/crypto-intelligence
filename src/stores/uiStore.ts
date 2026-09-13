@@ -13,7 +13,7 @@ export type Page =
   | 'watchlist'
   | 'settings'
 
-export type Route = { page: Page } | { page: 'asset'; symbol: string }
+export type Route = { page: Page } | { page: 'asset'; assetId: string }
 
 interface UiState {
   route: Route

@@ -6,7 +6,7 @@
  * validation of the arguments; the preload bridge only exposes the channels
  * listed here; the renderer calls them through a typed client.
  */
-import type { AppInfo, AppSettings, ConnectivityStatus } from './types'
+import type { AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData } from './types'
 
 export interface IpcInvokeContract {
   'app:getInfo': { args: []; result: AppInfo }
@@ -14,6 +14,12 @@ export interface IpcInvokeContract {
   'app:openPath': { args: [path: string]; result: void }
   'settings:get': { args: []; result: AppSettings }
   'settings:update': { args: [patch: Partial<AppSettings>]; result: AppSettings }
+  'market:getSnapshot': { args: []; result: TickerSnapshot }
+  'market:refresh': { args: []; result: TickerSnapshot }
+  'market:getStatus': { args: []; result: ConnectivityStatus }
+  'market:searchAssets': { args: [query: string, limit?: number]; result: CryptoAsset[] }
+  'market:getOHLCV': { args: [assetId: string, timeframe: Timeframe, limit?: number]; result: OHLCVResult }
+  'market:getVolume': { args: [assetId: string]; result: VolumeData }
 }
 
 export type IpcChannel = keyof IpcInvokeContract
@@ -24,11 +30,12 @@ export type IpcResult<C extends IpcChannel> = IpcInvokeContract[C]['result']
 export interface IpcEventContract {
   'connectivity:changed': ConnectivityStatus
   'settings:changed': AppSettings
+  'market:tickers': TickerSnapshot
 }
 export type IpcEvent = keyof IpcEventContract
 export type IpcEventPayload<E extends IpcEvent> = IpcEventContract[E]
 
-export const IPC_EVENTS: readonly IpcEvent[] = ['connectivity:changed', 'settings:changed']
+export const IPC_EVENTS: readonly IpcEvent[] = ['connectivity:changed', 'settings:changed', 'market:tickers']
 
 /**
  * Serializable error envelope. Handlers never let raw exceptions cross the

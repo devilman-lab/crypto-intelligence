@@ -7,6 +7,10 @@ import { SettingsRepository } from './database/repositories/settingsRepository'
 import type { AppContext } from './context'
 import { registerAppHandlers } from './ipc/appHandlers'
 import { registerSettingsHandlers } from './ipc/settingsHandlers'
+import { registerMarketHandlers } from './ipc/marketHandlers'
+import { MarketCacheRepository } from './database/repositories/marketCacheRepository'
+import { MarketService } from './market/marketService'
+import { emit } from './ipc/registry'
 import { createMainWindow } from './window'
 import { installScreenshotHook } from './devtools'
 
@@ -48,6 +52,9 @@ async function bootstrap(): Promise<void> {
 
   registerAppHandlers(ctx)
   registerSettingsHandlers(ctx)
+  registerMarketHandlers(ctx)
+
+  void ctx.services.market.start(ctx.repos.settings.get())
 
   installScreenshotHook(createMainWindow())
   logger.info(`Crypto Intelligence ${app.getVersion()} started (electron ${process.versions.electron})`)
@@ -59,6 +66,7 @@ async function bootstrap(): Promise<void> {
     if (process.platform !== 'darwin') app.quit()
   })
   app.on('will-quit', () => {
+    ctx.services.market.stop()
     try {
       ctx.db.close()
     } catch (err) {
@@ -77,9 +85,10 @@ function buildContext(): AppContext {
     logPath
   }
   const db = openDatabase(paths.dbPath)
-  return {
-    paths,
-    db,
-    repos: { settings: new SettingsRepository(db) }
-  }
+  const repos = { settings: new SettingsRepository(db), marketCache: new MarketCacheRepository(db) }
+  const market = new MarketService(repos.marketCache, {
+    onTickers: (snapshot) => emit('market:tickers', snapshot),
+    onConnectivity: (status) => emit('connectivity:changed', status)
+  })
+  return { paths, db, repos, services: { market } }
 }

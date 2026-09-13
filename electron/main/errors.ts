@@ -4,15 +4,21 @@
  * renderer only ever receives a friendly message and a code.
  */
 export class AppError extends Error {
+  /** Whether a transient retry could succeed (network hiccup, timeout, 5xx, 429). */
+  readonly retryable: boolean
+
   constructor(
     public readonly code: string,
     message: string,
-    options?: { cause?: unknown }
+    options?: { cause?: unknown; retryable?: boolean }
   ) {
-    super(message, options)
+    super(message, { cause: options?.cause })
     this.name = 'AppError'
+    this.retryable = options?.retryable ?? DEFAULT_RETRYABLE.has(code)
   }
 }
+
+const DEFAULT_RETRYABLE = new Set(['NETWORK', 'TIMEOUT', 'RATE_LIMITED'])
 
 export const ErrorCodes = {
   VALIDATION: 'VALIDATION',

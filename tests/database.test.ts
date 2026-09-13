@@ -44,3 +44,27 @@ describe('database + settings repository', () => {
     expect(new SettingsRepository(db).get()).toEqual(DEFAULT_SETTINGS)
   })
 })
+
+describe('market cache repository', () => {
+  it('round-trips assets, tickers and candles with trimming', async () => {
+    const { MarketCacheRepository } = await import('../electron/main/database/repositories/marketCacheRepository')
+    const dir = mkdtempSync(join(tmpdir(), 'ci-db-'))
+    const db = openDatabase(join(dir, 'm.db'))
+    const repo = new MarketCacheRepository(db)
+    repo.saveAssets([{ id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', rank: 1, imageUrl: null, binanceSymbol: 'BTCUSDT' }])
+    expect(repo.loadAssets().assets[0]?.binanceSymbol).toBe('BTCUSDT')
+
+    const ticker = { assetId: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', rank: 1, imageUrl: null, price: 1, change1hPct: null, change24hPct: 2, change7dPct: null, change30dPct: null, marketCap: null, volume24h: null, high24h: null, low24h: null, circulatingSupply: null, ath: null, athDate: null, updatedAt: 5 }
+    repo.saveTickers([ticker], 'coingecko')
+    const loaded = repo.loadTickers()
+    expect(loaded.tickers).toEqual([ticker])
+    expect(loaded.provider).toBe('coingecko')
+
+    const candles = Array.from({ length: 10 }, (_, i) => ({ time: i * 60, open: 1, high: 2, low: 0.5, close: 1.5, volume: 1 }))
+    repo.saveCandles('bitcoin', '1m', candles, 5)
+    const got = repo.loadCandles('bitcoin', '1m', 100)
+    expect(got.map((c) => c.time)).toEqual([300, 360, 420, 480, 540])
+    db.close()
+    rmSync(dir, { recursive: true, force: true })
+  })
+})

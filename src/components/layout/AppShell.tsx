@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar'
 import { StatusIndicator } from './StatusIndicator'
 import { useUiStore } from '@/stores/uiStore'
 import { Button } from '@/components/ui/Button'
+import { useMarketStore } from '@/stores/marketStore'
 
 const TITLES: Record<string, string> = {
   dashboard: 'Dashboard',
@@ -24,7 +25,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const route = useUiStore((s) => s.route)
   const history = useUiStore((s) => s.history)
   const back = useUiStore((s) => s.back)
-  const title = route.page === 'asset' ? route.symbol.toUpperCase() : TITLES[route.page]
+  const assetTicker = useMarketStore((s) => (route.page === 'asset' ? s.byId[route.assetId] : undefined))
+  const title = route.page === 'asset' ? (assetTicker ? `${assetTicker.name} (${assetTicker.symbol})` : route.assetId) : TITLES[route.page]
 
   return (
     <div className="flex h-full w-full">

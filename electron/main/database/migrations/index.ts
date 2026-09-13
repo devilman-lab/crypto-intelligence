@@ -20,5 +20,46 @@ export const migrations: Migration[] = [
         updated_at INTEGER NOT NULL
       );
     `
+  },
+  {
+    version: 2,
+    name: 'market_cache',
+    up: `
+      CREATE TABLE IF NOT EXISTS assets (
+        id TEXT PRIMARY KEY NOT NULL,
+        symbol TEXT NOT NULL,
+        name TEXT NOT NULL,
+        rank INTEGER,
+        image_url TEXT,
+        binance_symbol TEXT,
+        updated_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_assets_symbol ON assets(symbol);
+      CREATE INDEX IF NOT EXISTS idx_assets_rank ON assets(rank);
+
+      CREATE TABLE IF NOT EXISTS tickers (
+        asset_id TEXT PRIMARY KEY NOT NULL,
+        data TEXT NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS ohlcv (
+        asset_id TEXT NOT NULL,
+        timeframe TEXT NOT NULL,
+        time INTEGER NOT NULL,
+        open REAL NOT NULL,
+        high REAL NOT NULL,
+        low REAL NOT NULL,
+        close REAL NOT NULL,
+        volume REAL NOT NULL,
+        PRIMARY KEY (asset_id, timeframe, time)
+      );
+
+      CREATE TABLE IF NOT EXISTS cache_meta (
+        key TEXT PRIMARY KEY NOT NULL,
+        value TEXT NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+    `
   }
 ]

@@ -1,4 +1,5 @@
 import type { IpcResponse } from '@shared/ipc'
+import type { Timeframe } from '@shared/types'
 
 /** Error thrown by the typed API client when the main process reports a failure. */
 export class ApiError extends Error {
@@ -32,6 +33,14 @@ export const api = {
     get: () => unwrap(window.api.settings.get()),
     update: (patch: Parameters<typeof window.api.settings.update>[0]) =>
       unwrap(window.api.settings.update(patch))
+  },
+  market: {
+    getSnapshot: () => unwrap(window.api.market.getSnapshot()),
+    refresh: () => unwrap(window.api.market.refresh()),
+    getStatus: () => unwrap(window.api.market.getStatus()),
+    searchAssets: (query: string, limit?: number) => unwrap(window.api.market.searchAssets(query, limit)),
+    getOHLCV: (assetId: string, timeframe: Timeframe, limit?: number) => unwrap(window.api.market.getOHLCV(assetId, timeframe, limit)),
+    getVolume: (assetId: string) => unwrap(window.api.market.getVolume(assetId))
   },
   events: window.api.events
 }
