@@ -12,6 +12,7 @@ const TITLES: Record<string, string> = {
   volatility: 'Volatility',
   screener: 'Screener',
   analysis: 'Technical Analysis',
+  history: 'Historical Analysis',
   portfolio: 'Portfolio',
   paper: 'Paper Trading',
   journal: 'Trading Journal',

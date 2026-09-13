@@ -18,6 +18,7 @@ import { PortfolioPage } from '@/pages/PortfolioPage'
 import { PaperTradingPage } from '@/pages/PaperTradingPage'
 import { JournalPage } from '@/pages/JournalPage'
 import { AlertsPage } from '@/pages/AlertsPage'
+import { HistoryPage } from '@/pages/HistoryPage'
 import { useAlertStore } from '@/stores/alertStore'
 import { usePaperStore } from '@/stores/paperStore'
 import { usePortfolioStore } from '@/stores/portfolioStore'
@@ -41,6 +42,8 @@ function CurrentPage() {
       return <ScreenerPage />
     case 'analysis':
       return <AnalysisPage />
+    case 'history':
+      return <HistoryPage />
     case 'portfolio':
       return <PortfolioPage />
     case 'paper':

@@ -1,6 +1,7 @@
 import type { IpcResponse } from '@shared/ipc'
 import type { Timeframe, TransactionInput, PaperOrderInput, PaperCloseInput, JournalEntryInput, AlertRuleInput } from '@shared/types'
 import type { ScreenDefinition } from '@shared/analysis/screener'
+import type { HistoryCondition } from '@shared/analysis/history'
 
 /** Error thrown by the typed API client when the main process reports a failure. */
 export class ApiError extends Error {
@@ -84,6 +85,9 @@ export const api = {
     setEnabled: (id: number, enabled: boolean) => unwrap(window.api.alerts.setEnabled(id, enabled)),
     delete: (id: number) => unwrap(window.api.alerts.delete(id)),
     clearTriggers: () => unwrap(window.api.alerts.clearTriggers())
+  },
+  history: {
+    analyse: (assetId: string, condition: HistoryCondition, horizon: number) => unwrap(window.api.history.analyse(assetId, condition, horizon))
   },
   watchlist: {
     list: () => unwrap(window.api.watchlist.list()),

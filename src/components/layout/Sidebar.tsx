@@ -4,6 +4,7 @@ import {
   Activity,
   Filter,
   LineChart,
+  History,
   Briefcase,
   FlaskConical,
   NotebookPen,
@@ -30,7 +31,8 @@ const NAV: { group: string; items: NavItem[] }[] = [
       { page: 'markets', label: 'Markets', icon: CandlestickChart },
       { page: 'volatility', label: 'Volatility', icon: Activity },
       { page: 'screener', label: 'Screener', icon: Filter },
-      { page: 'analysis', label: 'Technical Analysis', icon: LineChart }
+      { page: 'analysis', label: 'Technical Analysis', icon: LineChart },
+      { page: 'history', label: 'Historical Analysis', icon: History }
     ]
   },
   {

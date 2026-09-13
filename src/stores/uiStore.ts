@@ -6,6 +6,7 @@ export type Page =
   | 'volatility'
   | 'screener'
   | 'analysis'
+  | 'history'
   | 'portfolio'
   | 'paper'
   | 'journal'

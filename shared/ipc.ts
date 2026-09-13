@@ -8,6 +8,7 @@
  */
 import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen, Portfolio, Transaction, TransactionInput, PaperSnapshot, PaperOrderInput, PaperCloseInput, JournalEntry, JournalEntryInput, AlertsSnapshot, AlertRuleInput } from './types'
 import type { ScreenDefinition } from './analysis/screener'
+import type { HistoryCondition, HistoryResult } from './analysis/history'
 
 export interface IpcInvokeContract {
   'app:getInfo': { args: []; result: AppInfo }
@@ -51,6 +52,7 @@ export interface IpcInvokeContract {
   'alerts:setEnabled': { args: [id: number, enabled: boolean]; result: AlertsSnapshot }
   'alerts:delete': { args: [id: number]; result: AlertsSnapshot }
   'alerts:clearTriggers': { args: []; result: AlertsSnapshot }
+  'history:analyse': { args: [assetId: string, condition: HistoryCondition, horizon: number]; result: { result: HistoryResult; source: string; stale: boolean; from: number; to: number } }
   'watchlist:list': { args: []; result: Watchlist[] }
   'watchlist:create': { args: [name: string]; result: Watchlist }
   'watchlist:rename': { args: [id: number, name: string]; result: Watchlist }

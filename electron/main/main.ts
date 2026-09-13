@@ -22,6 +22,7 @@ import { JournalRepository } from './database/repositories/journalRepository'
 import { AlertRepository } from './database/repositories/alertRepository'
 import { AlertEngine } from './alerts/alertEngine'
 import { registerAlertHandlers } from './ipc/alertHandlers'
+import { registerHistoryHandlers } from './ipc/historyHandlers'
 import { ScreenRepository } from './database/repositories/screenRepository'
 import { MarketService } from './market/marketService'
 import { AnalyticsService } from './market/analyticsService'
@@ -74,6 +75,7 @@ async function bootstrap(): Promise<void> {
   registerPaperHandlers(ctx)
   registerJournalHandlers(ctx)
   registerAlertHandlers(ctx)
+  registerHistoryHandlers(ctx)
 
   void ctx.services.market.start(ctx.repos.settings.get())
   ctx.services.analytics.start()

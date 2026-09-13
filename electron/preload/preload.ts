@@ -80,6 +80,9 @@ const api = {
     delete: (id: number) => invoke('alerts:delete', id),
     clearTriggers: () => invoke('alerts:clearTriggers')
   },
+  history: {
+    analyse: (assetId: string, condition: IpcArgs<'history:analyse'>[1], horizon: number) => invoke('history:analyse', assetId, condition, horizon)
+  },
   watchlist: {
     list: () => invoke('watchlist:list'),
     create: (name: string) => invoke('watchlist:create', name),

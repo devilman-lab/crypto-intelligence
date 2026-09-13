@@ -38,7 +38,8 @@ export class MarketService {
   private assetsBySymbol = new Map<string, CryptoAsset>()
   private assetsUpdatedAt: number | null = null
   private snapshot: TickerSnapshot = { tickers: [], updatedAt: null, stale: true, provider: 'coingecko' }
-  private candleFetchedAt = new Map<string, number>()
+  /** Per asset/timeframe: when candles were last fetched and how many were requested. */
+  private candleFetches = new Map<string, { at: number; limit: number }>()
   private status: ConnectivityStatus = { online: true, lastMarketUpdateAt: null }
 
   constructor(
@@ -223,11 +224,13 @@ export class MarketService {
     const asset = this.assets.get(assetId)
     if (!asset) throw new AppError(ErrorCodes.NOT_FOUND, 'Unknown asset.')
     const key = `${assetId}:${timeframe}`
-    const fetchedAt = this.candleFetchedAt.get(key) ?? 0
+    const last = this.candleFetches.get(key)
+    const fetchedAt = last?.at ?? 0
     // Refresh at most once per candle interval, but at least every 60s for intraday charts.
+    // A request for more candles than previously fetched always goes to the provider.
     const ttl = Math.min(TIMEFRAME_SECONDS[timeframe] * 1000, 60_000)
     const cached = this.cache.loadCandles(assetId, timeframe, limit)
-    if (cached.length >= Math.min(limit, 50) && Date.now() - fetchedAt < ttl) {
+    if (cached.length >= Math.min(limit, 50) && Date.now() - fetchedAt < ttl && (last?.limit ?? 0) >= limit) {
       return { assetId, timeframe, candles: cached, source: 'cache', updatedAt: fetchedAt, stale: false }
     }
 
@@ -241,7 +244,7 @@ export class MarketService {
       if (!candles.length) throw new AppError(ErrorCodes.PROVIDER, 'No candle data returned.')
       this.cache.saveCandles(assetId, timeframe, candles)
       const now = Date.now()
-      this.candleFetchedAt.set(key, now)
+      this.candleFetches.set(key, { at: now, limit })
       this.setStatus({ online: true, lastMarketUpdateAt: now })
       return { assetId, timeframe, candles: this.cache.loadCandles(assetId, timeframe, limit), source: provider.id, updatedAt: now, stale: false }
     } catch (err) {
