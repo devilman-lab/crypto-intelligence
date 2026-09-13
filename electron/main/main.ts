@@ -19,6 +19,9 @@ import { PaperTradingService } from './services/paperTradingService'
 import { registerPaperHandlers } from './ipc/paperHandlers'
 import { registerJournalHandlers } from './ipc/journalHandlers'
 import { JournalRepository } from './database/repositories/journalRepository'
+import { AlertRepository } from './database/repositories/alertRepository'
+import { AlertEngine } from './alerts/alertEngine'
+import { registerAlertHandlers } from './ipc/alertHandlers'
 import { ScreenRepository } from './database/repositories/screenRepository'
 import { MarketService } from './market/marketService'
 import { AnalyticsService } from './market/analyticsService'
@@ -70,6 +73,7 @@ async function bootstrap(): Promise<void> {
   registerPortfolioHandlers(ctx)
   registerPaperHandlers(ctx)
   registerJournalHandlers(ctx)
+  registerAlertHandlers(ctx)
 
   void ctx.services.market.start(ctx.repos.settings.get())
   ctx.services.analytics.start()
@@ -104,12 +108,21 @@ function buildContext(): AppContext {
     logPath
   }
   const db = openDatabase(paths.dbPath)
-  const repos = { settings: new SettingsRepository(db), marketCache: new MarketCacheRepository(db), watchlists: new WatchlistRepository(db), screens: new ScreenRepository(db), portfolios: new PortfolioRepository(db), paper: new PaperRepository(db), journal: new JournalRepository(db) }
+  const repos = { settings: new SettingsRepository(db), marketCache: new MarketCacheRepository(db), watchlists: new WatchlistRepository(db), screens: new ScreenRepository(db), portfolios: new PortfolioRepository(db), paper: new PaperRepository(db), journal: new JournalRepository(db), alerts: new AlertRepository(db) }
+  // Alert evaluation is hooked to both data feeds; the engine is created after them and wired via closures.
+  let alerts: AlertEngine | null = null
   const market = new MarketService(repos.marketCache, {
-    onTickers: (snapshot) => emit('market:tickers', snapshot),
+    onTickers: (snapshot) => {
+      emit('market:tickers', snapshot)
+      alerts?.evaluateAll()
+    },
     onConnectivity: (status) => emit('connectivity:changed', status)
   })
-  const analytics = new AnalyticsService(market, repos.marketCache, (s) => emit('analytics:snapshot', s))
+  const analytics = new AnalyticsService(market, repos.marketCache, (s) => {
+    emit('analytics:snapshot', s)
+    alerts?.evaluateAll()
+  })
+  alerts = new AlertEngine(repos.alerts, repos.settings, market, analytics, (s) => emit('alerts:changed', s))
   const paper = new PaperTradingService(repos.paper, market)
-  return { paths, db, repos, services: { market, analytics, paper } }
+  return { paths, db, repos, services: { market, analytics, paper, alerts } }
 }

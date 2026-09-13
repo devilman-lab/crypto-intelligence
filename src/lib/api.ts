@@ -1,5 +1,5 @@
 import type { IpcResponse } from '@shared/ipc'
-import type { Timeframe, TransactionInput, PaperOrderInput, PaperCloseInput, JournalEntryInput } from '@shared/types'
+import type { Timeframe, TransactionInput, PaperOrderInput, PaperCloseInput, JournalEntryInput, AlertRuleInput } from '@shared/types'
 import type { ScreenDefinition } from '@shared/analysis/screener'
 
 /** Error thrown by the typed API client when the main process reports a failure. */
@@ -76,6 +76,14 @@ export const api = {
     update: (id: number, input: JournalEntryInput) => unwrap(window.api.journal.update(id, input)),
     delete: (id: number) => unwrap(window.api.journal.delete(id)),
     strategies: () => unwrap(window.api.journal.strategies())
+  },
+  alerts: {
+    getSnapshot: () => unwrap(window.api.alerts.getSnapshot()),
+    create: (input: AlertRuleInput) => unwrap(window.api.alerts.create(input)),
+    update: (id: number, input: AlertRuleInput) => unwrap(window.api.alerts.update(id, input)),
+    setEnabled: (id: number, enabled: boolean) => unwrap(window.api.alerts.setEnabled(id, enabled)),
+    delete: (id: number) => unwrap(window.api.alerts.delete(id)),
+    clearTriggers: () => unwrap(window.api.alerts.clearTriggers())
   },
   watchlist: {
     list: () => unwrap(window.api.watchlist.list()),

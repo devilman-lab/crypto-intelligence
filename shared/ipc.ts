@@ -6,7 +6,7 @@
  * validation of the arguments; the preload bridge only exposes the channels
  * listed here; the renderer calls them through a typed client.
  */
-import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen, Portfolio, Transaction, TransactionInput, PaperSnapshot, PaperOrderInput, PaperCloseInput, JournalEntry, JournalEntryInput } from './types'
+import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen, Portfolio, Transaction, TransactionInput, PaperSnapshot, PaperOrderInput, PaperCloseInput, JournalEntry, JournalEntryInput, AlertsSnapshot, AlertRuleInput } from './types'
 import type { ScreenDefinition } from './analysis/screener'
 
 export interface IpcInvokeContract {
@@ -45,6 +45,12 @@ export interface IpcInvokeContract {
   'journal:update': { args: [id: number, input: JournalEntryInput]; result: JournalEntry }
   'journal:delete': { args: [id: number]; result: void }
   'journal:strategies': { args: []; result: string[] }
+  'alerts:getSnapshot': { args: []; result: AlertsSnapshot }
+  'alerts:create': { args: [input: AlertRuleInput]; result: AlertsSnapshot }
+  'alerts:update': { args: [id: number, input: AlertRuleInput]; result: AlertsSnapshot }
+  'alerts:setEnabled': { args: [id: number, enabled: boolean]; result: AlertsSnapshot }
+  'alerts:delete': { args: [id: number]; result: AlertsSnapshot }
+  'alerts:clearTriggers': { args: []; result: AlertsSnapshot }
   'watchlist:list': { args: []; result: Watchlist[] }
   'watchlist:create': { args: [name: string]; result: Watchlist }
   'watchlist:rename': { args: [id: number, name: string]; result: Watchlist }
@@ -64,11 +70,12 @@ export interface IpcEventContract {
   'settings:changed': AppSettings
   'market:tickers': TickerSnapshot
   'analytics:snapshot': AnalyticsSnapshot
+  'alerts:changed': AlertsSnapshot
 }
 export type IpcEvent = keyof IpcEventContract
 export type IpcEventPayload<E extends IpcEvent> = IpcEventContract[E]
 
-export const IPC_EVENTS: readonly IpcEvent[] = ['connectivity:changed', 'settings:changed', 'market:tickers', 'analytics:snapshot']
+export const IPC_EVENTS: readonly IpcEvent[] = ['connectivity:changed', 'settings:changed', 'market:tickers', 'analytics:snapshot', 'alerts:changed']
 
 /**
  * Serializable error envelope. Handlers never let raw exceptions cross the

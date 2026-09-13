@@ -191,5 +191,36 @@ export const migrations: Migration[] = [
       CREATE INDEX IF NOT EXISTS idx_journal_opened ON journal_entries(opened_at);
       CREATE INDEX IF NOT EXISTS idx_journal_asset ON journal_entries(asset_id);
     `
+  },
+  {
+    version: 8,
+    name: 'alerts',
+    up: `
+      CREATE TABLE IF NOT EXISTS alerts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        asset_id TEXT NOT NULL,
+        symbol TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK (kind IN ('price','change24h','volatility','volume','rsi')),
+        direction TEXT NOT NULL CHECK (direction IN ('above','below')),
+        threshold REAL NOT NULL,
+        mode TEXT NOT NULL CHECK (mode IN ('once','repeating')),
+        enabled INTEGER NOT NULL DEFAULT 1,
+        armed INTEGER NOT NULL DEFAULT 0,
+        last_triggered_at INTEGER,
+        trigger_count INTEGER NOT NULL DEFAULT 0,
+        note TEXT NOT NULL DEFAULT '',
+        created_at INTEGER NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS alert_triggers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        alert_id INTEGER NOT NULL REFERENCES alerts(id) ON DELETE CASCADE,
+        symbol TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        message TEXT NOT NULL,
+        value REAL NOT NULL,
+        triggered_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_alert_triggers_time ON alert_triggers(triggered_at);
+    `
   }
 ]

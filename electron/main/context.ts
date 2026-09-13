@@ -6,6 +6,8 @@ import type { ScreenRepository } from './database/repositories/screenRepository'
 import type { PortfolioRepository } from './database/repositories/portfolioRepository'
 import type { PaperRepository } from './database/repositories/paperRepository'
 import type { JournalRepository } from './database/repositories/journalRepository'
+import type { AlertRepository } from './database/repositories/alertRepository'
+import type { AlertEngine } from './alerts/alertEngine'
 import type { PaperTradingService } from './services/paperTradingService'
 import type { MarketService } from './market/marketService'
 import type { AnalyticsService } from './market/analyticsService'
@@ -32,10 +34,12 @@ export interface AppContext {
     portfolios: PortfolioRepository
     paper: PaperRepository
     journal: JournalRepository
+    alerts: AlertRepository
   }
   services: {
     market: MarketService
     analytics: AnalyticsService
     paper: PaperTradingService
+    alerts: AlertEngine
   }
 }

@@ -9,6 +9,8 @@ import { isStablecoin } from '@shared/analysis/classify'
 import { usePortfolioValuation } from '@/hooks/usePortfolioValuation'
 import { AllocationDonut } from '@/components/portfolio/AllocationDonut'
 import { usePaperStore } from '@/stores/paperStore'
+import { useAlertStore } from '@/stores/alertStore'
+import { describeRule } from '@shared/analysis/alerts'
 import { formatDateTime, formatMoney } from '@/lib/format'
 import { Badge } from '@/components/ui/Badge'
 import { useUiStore } from '@/stores/uiStore'
@@ -32,6 +34,9 @@ export function DashboardPage() {
   const { summary: pf, open: holdings } = usePortfolioValuation(null)
   const hasPortfolio = holdings.length > 0
   const paperSnapshot = usePaperStore((s) => s.snapshot)
+  const alertRules = useAlertStore((s) => s.rules)
+  const alertTriggers = useAlertStore((s) => s.triggers)
+  const activeAlerts = useMemo(() => alertRules.filter((r) => r.enabled), [alertRules])
   const paperTrades = useMemo(() => paperSnapshot?.trades ?? [], [paperSnapshot])
 
   const btc = byId['bitcoin']
@@ -140,8 +145,25 @@ export function DashboardPage() {
           </Button>
         }
       />
-      <Panel title="Active alerts" className="col-span-12 md:col-span-6 xl:col-span-4" padded={false}>
-        <EmptyState icon={Bell} title="No alerts yet" description="Price, volatility, volume and RSI alerts arrive in Phase 10." />
+      <Panel title={`Active alerts (${activeAlerts.length})`} className="col-span-12 md:col-span-6 xl:col-span-4" padded={false} actions={<Button size="xs" variant="ghost" onClick={() => navigate({ page: 'alerts' })}>Manage</Button>}>
+        {activeAlerts.length === 0 && alertTriggers.length === 0 ? (
+          <EmptyState icon={Bell} title="No alerts yet" description="Create price, volatility, volume or RSI alerts to get desktop notifications." />
+        ) : (
+          <ul className="text-[12px]">
+            {activeAlerts.slice(0, 5).map((r) => (
+              <li key={r.id} className="flex items-center justify-between border-t border-border/60 px-3 py-1.5">
+                <span className="truncate">{describeRule(r)}</span>
+                <Badge tone={r.armed ? 'warning' : 'positive'} className="ml-2 shrink-0">{r.armed ? 'met' : 'watching'}</Badge>
+              </li>
+            ))}
+            {alertTriggers.slice(0, 3).map((t) => (
+              <li key={`t${t.id}`} className="flex items-center justify-between border-t border-border/60 px-3 py-1.5 text-fg-muted">
+                <span className="truncate">{t.message}</span>
+                <span className="num ml-2 shrink-0 text-[10px]">{formatDateTime(t.triggeredAt)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </Panel>
       <Panel title="Recent paper trades" className="col-span-12 md:col-span-6 xl:col-span-4" padded={false} actions={<Button size="xs" variant="ghost" onClick={() => navigate({ page: 'paper' })}>Open</Button>}>
         {paperTrades.length === 0 ? (

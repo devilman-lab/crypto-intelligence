@@ -72,6 +72,14 @@ const api = {
     delete: (id: number) => invoke('journal:delete', id),
     strategies: () => invoke('journal:strategies')
   },
+  alerts: {
+    getSnapshot: () => invoke('alerts:getSnapshot'),
+    create: (input: IpcArgs<'alerts:create'>[0]) => invoke('alerts:create', input),
+    update: (id: number, input: IpcArgs<'alerts:update'>[1]) => invoke('alerts:update', id, input),
+    setEnabled: (id: number, enabled: boolean) => invoke('alerts:setEnabled', id, enabled),
+    delete: (id: number) => invoke('alerts:delete', id),
+    clearTriggers: () => invoke('alerts:clearTriggers')
+  },
   watchlist: {
     list: () => invoke('watchlist:list'),
     create: (name: string) => invoke('watchlist:create', name),
