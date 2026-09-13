@@ -161,9 +161,9 @@ function Distribution({ buckets }: { buckets: { from: number; to: number; count:
   return (
     <div className="flex h-44 items-end gap-1">
       {buckets.map((b) => (
-        <div key={b.from} className="flex min-w-0 flex-1 flex-col items-center gap-1" title={`${b.from.toFixed(1)}% to ${b.to.toFixed(1)}%: ${b.count}`}>
+        <div key={b.from} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1" title={`${b.from.toFixed(1)}% to ${b.to.toFixed(1)}%: ${b.count}`}>
           <span className="num text-[10px] text-fg-muted">{b.count || ''}</span>
-          <div className={cn('w-full rounded-sm', b.to <= 0 ? 'bg-negative/70' : b.from >= 0 ? 'bg-positive/70' : 'bg-fg-subtle/60')} style={{ height: `${max ? (b.count / max) * 100 : 0}%`, minHeight: b.count ? 2 : 0 }} />
+          <div className={cn('w-full rounded-sm', b.to <= 0 ? 'bg-negative/70' : b.from >= 0 ? 'bg-positive/70' : 'bg-fg-subtle/60')} style={{ height: `${max ? (b.count / max) * 80 : 0}%`, minHeight: b.count ? 2 : 0 }} />
           <span className="num w-full truncate text-center text-[9px] text-fg-subtle">{b.from > 0 ? '+' : ''}{Number.isInteger(b.from) ? b.from : b.from.toFixed(1)}%</span>
         </div>
       ))}
