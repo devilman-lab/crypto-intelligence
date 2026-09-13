@@ -98,6 +98,11 @@ export function SettingsPage() {
         <div className="mb-2 rounded-md bg-accent-soft px-2.5 py-2 text-[11px] text-fg">
           Your portfolio and journal data are stored locally on your computer. Nothing is uploaded.
         </div>
+        {info?.mode === 'portable' && (
+          <div className="mb-2 rounded-md bg-warning-soft px-2.5 py-2 text-[11px] text-fg">
+            <span className="font-semibold text-warning">Portable mode.</span> Data is stored next to the executable in <span className="num">{info.dataDir}</span>. Keep that folder together with the .exe when you move or replace it.
+          </div>
+        )}
         <Row label="Data location" hint={info?.dbPath ?? '…'}>
           <Button size="sm" onClick={() => info && void api.app.openPath(info.userDataPath)} disabled={!info}>
             <FolderOpen className="h-3.5 w-3.5" /> Open
@@ -117,6 +122,9 @@ export function SettingsPage() {
       <Panel title="Application" className="lg:col-span-2">
         <Row label="Version">
           <span className="num text-xs">{info ? `${info.version} · Electron ${info.electronVersion}` : '…'}</span>
+        </Row>
+        <Row label="Distribution" hint={info?.mode === 'portable' ? 'Single-executable portable build' : info?.mode === 'custom' ? 'Custom data directory (CRYPTO_INTELLIGENCE_DATA_DIR)' : 'Installed build'}>
+          <span className="text-xs capitalize">{info?.mode ?? '…'}</span>
         </Row>
         <UpdateRow />
         <Row label="AI module" hint="Optional module for market summaries and natural-language screening. Not included in this version.">

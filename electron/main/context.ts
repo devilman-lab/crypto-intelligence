@@ -1,4 +1,5 @@
 import type { AppDatabase } from './database/database'
+import type { DistributionMode } from './dataLocation'
 import type { SettingsRepository } from './database/repositories/settingsRepository'
 import type { MarketCacheRepository } from './database/repositories/marketCacheRepository'
 import type { WatchlistRepository } from './database/repositories/watchlistRepository'
@@ -17,9 +18,15 @@ import type { AnalyticsService } from './market/analyticsService'
 
 export interface AppPaths {
   userData: string
+  /** Root of all application data (equals userData; kept explicit for clarity). */
+  dataDir: string
   dbPath: string
   logDir: string
   logPath: string
+  /** Suggested folder for backups/exports (portable mode), or null to let the OS choose. */
+  backupsDir: string | null
+  mode: DistributionMode
+  portableExecutable: string | null
 }
 
 /**

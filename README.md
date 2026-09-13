@@ -61,7 +61,9 @@ npm run typecheck  # tsc for main/preload/shared and renderer
 npm run lint       # eslint
 npm test           # vitest
 npm run build      # production bundles into out/
-npm run package    # Windows installer into release/<version>/
+npm run dist:installer   # Windows installer        → release/<version>/Crypto-Intelligence-Setup-<version>.exe
+npm run dist:portable    # single-file portable exe  → release/<version>/Crypto-Intelligence-Portable-<version>.exe
+npm run dist:all         # both (alias: npm run package); prints sizes and SHA-256, writes .sha256 files
 ```
 
 > If you run Electron from a terminal inside VS Code, unset `ELECTRON_RUN_AS_NODE` first (`env -u ELECTRON_RUN_AS_NODE npm run dev`), otherwise Electron starts as a plain Node process.
@@ -74,6 +76,7 @@ The application needs none. Diagnostic variables recognised at launch:
 | --- | --- |
 | `CI_SCREENSHOT=<file.png>` | Capture the window after load and exit (`CI_SCREENSHOT_ROUTE`, `CI_SCREENSHOT_JS`, `CI_SCREENSHOT_SIZE=1280x720`, `CI_SCREENSHOT_DELAY` refine it) |
 | `CI_OFFLINE=1` | Make every network request fail, to exercise offline mode |
+| `CRYPTO_INTELLIGENCE_DATA_DIR=<dir>` | Store all data in a custom directory (either build; shown as mode "custom" in Settings) |
 | `NODE_ENV=development` | Debug-level console logging |
 
 ## Market-data providers
@@ -103,7 +106,12 @@ Suites cover: indicator maths, volatility maths, screener evaluation, portfolio 
 
 ## Building, packaging and releasing
 
-[docs/release.md](docs/release.md). `npm run package` produces `release/<version>/Crypto-Intelligence-Setup-<version>.exe`. Keep `package.json` and `website/src/lib/release.ts` versions in sync.
+[docs/release.md](docs/release.md). Two Windows formats are produced from the same build:
+
+- **Installer** — `npm run dist:installer` → `release/<version>/Crypto-Intelligence-Setup-<version>.exe`. Per-user NSIS installer; data in `%APPDATA%\Crypto Intelligence`; in-app update checks.
+- **Portable** — `npm run dist:portable` → `release/<version>/Crypto-Intelligence-Portable-<version>.exe`. One file, no installation, no administrator rights. On first launch it creates `Crypto Intelligence Data\` next to the exe (database, logs, cache, backups); keep the exe and that folder together when moving it. A read-only folder falls back to `%LOCALAPPDATA%\Crypto Intelligence Portable` with a notice. Each launch unpacks the program into a temporary folder, so start-up is a few seconds slower than the installed version. Updates are manual: download the new exe and replace the old one — the data folder is kept.
+
+`npm run dist:all` builds both and writes `.sha256` checksum files. Both executables are unsigned until code signing is configured, so SmartScreen may warn. Keep `package.json` and `website/src/lib/release.ts` versions in sync — `tests/packaging.test.ts` enforces it.
 
 ## Website
 

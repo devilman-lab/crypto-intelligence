@@ -33,6 +33,25 @@ import { AnalyticsService } from './market/analyticsService'
 import { emit } from './ipc/registry'
 import { createMainWindow } from './window'
 import { installScreenshotHook } from './devtools'
+import { dataLayout, directoryIsWritable, resolveDataLocation, type DataLocation } from './dataLocation'
+
+// Decide where data lives BEFORE the logger, the single-instance lock or Chromium touch userData.
+let location: DataLocation | null = null
+let locationError: string | null = null
+try {
+  location = resolveDataLocation({
+    env: process.env,
+    defaultUserData: app.getPath('userData'),
+    localAppData: process.env['LOCALAPPDATA'] || join(app.getPath('appData'), '..', 'Local'),
+    isWritable: directoryIsWritable
+  })
+  const layout = dataLayout(location.dataDir, location.mode)
+  app.setPath('userData', location.dataDir)
+  app.setPath('sessionData', layout.sessionDir)
+  app.setPath('logs', layout.logsDir)
+} catch (err) {
+  locationError = err instanceof Error ? err.message : String(err)
+}
 
 initLogger()
 const logger = createLogger('main')
@@ -57,9 +76,30 @@ async function bootstrap(): Promise<void> {
 
   app.on('browser-window-created', (_, window) => optimizer.watchWindowShortcuts(window))
 
+  if (!location) {
+    logger.error(`no writable data directory: ${locationError}`)
+    dialog.showErrorBox('Crypto Intelligence could not start', `No writable folder is available for application data.
+
+${locationError ?? ''}`)
+    app.exit(1)
+    return
+  }
+  if (location.rejected) {
+    logger.warn(`portable data folder not writable (${location.rejected}); using ${location.dataDir}`)
+    void dialog.showMessageBox({
+      type: 'warning',
+      title: 'Portable data folder not writable',
+      message: 'The folder next to the portable executable is read-only.',
+      detail: `Your data is being stored in:
+${location.dataDir}
+
+Move the executable to a writable folder (for example your Documents folder or a USB drive) if you want the data to travel with it.`
+    })
+  }
+
   let ctx: AppContext
   try {
-    ctx = buildContext()
+    ctx = buildContext(location)
   } catch (err) {
     logger.error('startup failed', err)
     dialog.showErrorBox(
@@ -105,15 +145,21 @@ async function bootstrap(): Promise<void> {
   })
 }
 
-function buildContext(): AppContext {
+function buildContext(location: DataLocation): AppContext {
   const userData = app.getPath('userData')
+  const layout = dataLayout(location.dataDir, location.mode)
   const logPath = log.transports.file.getFile().path
   const paths = {
     userData,
-    dbPath: join(userData, 'crypto-intelligence.db'),
+    dataDir: location.dataDir,
+    dbPath: layout.dbPath,
     logDir: join(logPath, '..'),
-    logPath
+    logPath,
+    backupsDir: layout.backupsDir,
+    mode: location.mode,
+    portableExecutable: location.portableExecutable
   }
+  logger.info(`data mode: ${location.mode}, data dir: ${location.dataDir}`)
   const db = openDatabase(paths.dbPath)
   const repos = { settings: new SettingsRepository(db), marketCache: new MarketCacheRepository(db), watchlists: new WatchlistRepository(db), screens: new ScreenRepository(db), portfolios: new PortfolioRepository(db), paper: new PaperRepository(db), journal: new JournalRepository(db), alerts: new AlertRepository(db) }
   // Alert evaluation is hooked to both data feeds; the engine is created after them and wired via closures.
@@ -131,7 +177,7 @@ function buildContext(): AppContext {
   })
   alerts = new AlertEngine(repos.alerts, repos.settings, market, analytics, (s) => emit('alerts:changed', s))
   const paper = new PaperTradingService(repos.paper, market)
-  const ctx: AppContext = { paths, db, repos, services: { market, analytics, paper, alerts, backup: null as unknown as BackupService, updates: new GitHubReleasesUpdateService(), ai: new NullAIService() } }
+  const ctx: AppContext = { paths, db, repos, services: { market, analytics, paper, alerts, backup: null as unknown as BackupService, updates: new GitHubReleasesUpdateService(location.mode === 'portable'), ai: new NullAIService() } }
   ctx.services.backup = new BackupService(ctx, () => BrowserWindow.getAllWindows()[0] ?? null)
   return ctx
 }

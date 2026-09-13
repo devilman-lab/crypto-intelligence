@@ -69,6 +69,18 @@ src/
 
 Routing is a typed union in `uiStore` (`{ page }` or `{ page: 'asset', assetId }`) with a small history stack; no router library is needed for a desktop app.
 
+## Data location and portable mode
+
+[electron/main/dataLocation.ts](../electron/main/dataLocation.ts) decides, before anything else touches `userData`, where all data lives; `main.ts` then calls `app.setPath('userData' | 'sessionData' | 'logs', …)` so the SQLite database, electron-log files and Chromium's profile/cache all follow it.
+
+| Mode | Trigger | Data root | Layout |
+| --- | --- | --- | --- |
+| installed | default (NSIS install, `electron .`) | `%APPDATA%\Crypto Intelligence` | flat, unchanged from earlier versions |
+| portable | `PORTABLE_EXECUTABLE_DIR` set by electron-builder's portable launcher | `<exe folder>\Crypto Intelligence Data` | `database/`, `logs/`, `cache/`, `backups/` |
+| custom | `CRYPTO_INTELLIGENCE_DATA_DIR` | that directory | portable layout |
+
+The decision is a pure function (`resolveDataLocation`) driven by an injected writability probe, so it is unit-tested without Electron. In portable mode a non-writable exe folder falls back to `%LOCALAPPDATA%\Crypto Intelligence Portable` with a start-up notice; no writable candidate at all is a fatal, explained error. `AppPaths.mode` flows to the renderer through `app:getInfo` (Settings shows it), to `BackupService` (dialogs default into `backups/`) and to `UpdateService` (no self-update in portable mode).
+
 ## Performance notes
 
 - Tables are virtualized (`@tanstack/react-virtual`); only visible rows exist in the DOM.

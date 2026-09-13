@@ -24,15 +24,23 @@ win:
   target:
     - target: nsis
       arch: [x64]
+    - target: portable
+      arch: [x64]
   icon: resources/icons/icon.ico
-  artifactName: Crypto-Intelligence-Setup-${version}.${ext}
+  # Artifact names are set per target so the installer and the portable exe never collide.
 nsis:
+  artifactName: Crypto-Intelligence-Setup-${version}.${ext}
   oneClick: false
   allowToChangeInstallationDirectory: true
   perMachine: false
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: Crypto Intelligence
+# Single self-extracting executable. It unpacks to a per-launch %TEMP% folder, runs the app with
+# PORTABLE_EXECUTABLE_DIR set (see electron/main/dataLocation.ts) and cleans up on exit.
+portable:
+  artifactName: Crypto-Intelligence-Portable-${version}.${ext}
+  requestExecutionLevel: user
 publish:
   provider: github
   owner: crypto-intelligence

@@ -1,5 +1,7 @@
 import { app, dialog, type BrowserWindow } from 'electron'
 import { readFile, writeFile } from 'node:fs/promises'
+import { mkdirSync } from 'node:fs'
+import { join } from 'node:path'
 import { z } from 'zod'
 import type { AppContext } from '../context'
 import type { BackupFile, BackupSummary, CsvDataset, ImportMode } from '@shared/types'
@@ -67,6 +69,16 @@ export class BackupService {
   ) {}
 
   private saveDialog(opts: Electron.SaveDialogOptions): Promise<Electron.SaveDialogReturnValue> {
+    // Portable mode: suggest the backups folder inside the data directory so exports travel with the executable.
+    const backupsDir = this.ctx.paths.backupsDir
+    if (backupsDir && opts.defaultPath && !/[\\/]/.test(opts.defaultPath)) {
+      try {
+        mkdirSync(backupsDir, { recursive: true })
+        opts = { ...opts, defaultPath: join(backupsDir, opts.defaultPath) }
+      } catch {
+        /* fall back to the OS default location */
+      }
+    }
     const win = this.getWindow()
     return win ? dialog.showSaveDialog(win, opts) : dialog.showSaveDialog(opts)
   }

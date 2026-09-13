@@ -23,7 +23,16 @@ export class GitHubReleasesUpdateService implements UpdateService {
   private status: UpdateStatus = { state: 'unavailable', reason: 'Updates are only available in the installed application.' }
   private updater: typeof import('electron-updater').autoUpdater | null = null
 
-  constructor() {
+  /**
+   * @param portable The portable build is a self-extracting executable; electron-updater's
+   * NSIS flow would run an installer next to it, so in-app updates are disabled and the user
+   * is pointed at the releases page instead.
+   */
+  constructor(portable = false) {
+    if (portable) {
+      this.status = { state: 'unavailable', reason: 'This is the portable build. To update, download the latest portable executable from the releases page and replace this file — your data folder is kept.' }
+      return
+    }
     if (!app.isPackaged) return
     try {
       // Lazy require keeps the dev process free of updater side effects.

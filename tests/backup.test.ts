@@ -29,7 +29,7 @@ function makeCtx(db: AppDatabase): AppContext {
     journal: new JournalRepository(db),
     alerts: new AlertRepository(db)
   }
-  return { paths: { userData: '', dbPath: '', logDir: '', logPath: '' }, db, repos, services: {} as AppContext['services'] }
+  return { paths: { userData: '', dataDir: '', dbPath: '', logDir: '', logPath: '', backupsDir: null, mode: 'installed', portableExecutable: null }, db, repos, services: {} as AppContext['services'] }
 }
 
 describe('BackupService', () => {

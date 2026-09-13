@@ -9,6 +9,9 @@ const ALLOWED_PROTOCOLS = new Set(['https:', 'mailto:'])
 export function registerAppHandlers(ctx: AppContext): void {
   handle('app:getInfo', noArgs, () => ({
     version: app.getVersion(),
+    mode: ctx.paths.mode,
+    dataDir: ctx.paths.dataDir,
+    portableExecutable: ctx.paths.portableExecutable,
     electronVersion: process.versions.electron ?? '',
     platform: process.platform,
     arch: process.arch,
