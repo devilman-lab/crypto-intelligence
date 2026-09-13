@@ -42,6 +42,12 @@ const api = {
     getSnapshot: () => invoke('analytics:getSnapshot'),
     refresh: () => invoke('analytics:refresh')
   },
+  screen: {
+    list: () => invoke('screen:list'),
+    create: (name: string, definition: IpcArgs<'screen:create'>[1]) => invoke('screen:create', name, definition),
+    update: (id: number, patch: IpcArgs<'screen:update'>[1]) => invoke('screen:update', id, patch),
+    delete: (id: number) => invoke('screen:delete', id)
+  },
   watchlist: {
     list: () => invoke('watchlist:list'),
     create: (name: string) => invoke('watchlist:create', name),

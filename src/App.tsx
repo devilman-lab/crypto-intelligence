@@ -14,6 +14,7 @@ import { WatchlistPage } from '@/pages/WatchlistPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { AnalysisPage } from '@/pages/AnalysisPage'
 import { VolatilityPage } from '@/pages/VolatilityPage'
+import { ScreenerPage } from '@/pages/ScreenerPage'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 import { useAnalyticsStore } from '@/stores/analyticsStore'
 
@@ -31,7 +32,7 @@ function CurrentPage() {
     case 'volatility':
       return <VolatilityPage />
     case 'screener':
-      return <PlaceholderPage name="Screener" phase={6} />
+      return <ScreenerPage />
     case 'analysis':
       return <AnalysisPage />
     case 'portfolio':

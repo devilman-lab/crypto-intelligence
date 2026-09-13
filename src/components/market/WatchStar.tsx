@@ -15,7 +15,7 @@ export function WatchStar({ assetId, className }: { assetId: string; className?:
         e.stopPropagation()
         void toggle(assetId)
       }}
-      className={cn('rounded p-1 text-fg-subtle hover:text-warning', watched && 'text-warning', className)}
+      className={cn('inline-flex rounded p-1 text-fg-subtle hover:text-warning', watched && 'text-warning', className)}
     >
       <Star className="h-3.5 w-3.5" fill={watched ? 'currentColor' : 'none'} />
     </button>

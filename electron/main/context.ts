@@ -2,6 +2,7 @@ import type { AppDatabase } from './database/database'
 import type { SettingsRepository } from './database/repositories/settingsRepository'
 import type { MarketCacheRepository } from './database/repositories/marketCacheRepository'
 import type { WatchlistRepository } from './database/repositories/watchlistRepository'
+import type { ScreenRepository } from './database/repositories/screenRepository'
 import type { MarketService } from './market/marketService'
 import type { AnalyticsService } from './market/analyticsService'
 
@@ -23,6 +24,7 @@ export interface AppContext {
     settings: SettingsRepository
     marketCache: MarketCacheRepository
     watchlists: WatchlistRepository
+    screens: ScreenRepository
   }
   services: {
     market: MarketService

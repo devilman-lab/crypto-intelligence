@@ -68,3 +68,23 @@ describe('market cache repository', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 })
+
+describe('screen repository', () => {
+  it('creates, updates, lists and deletes saved screens', async () => {
+    const { ScreenRepository } = await import('../electron/main/database/repositories/screenRepository')
+    const dir = mkdtempSync(join(tmpdir(), 'ci-db-'))
+    const db = openDatabase(join(dir, 's.db'))
+    const repo = new ScreenRepository(db)
+    const def = { logic: 'and' as const, conditions: [{ id: 'a', field: 'rsi14' as const, op: 'lt' as const, value: 30 }] }
+    const s = repo.create('Oversold', def)
+    expect(s.definition).toEqual(def)
+    const u = repo.update(s.id, { name: 'Oversold v2' })
+    expect(u.name).toBe('Oversold v2')
+    expect(u.definition).toEqual(def)
+    expect(repo.list()).toHaveLength(1)
+    repo.delete(s.id)
+    expect(repo.list()).toHaveLength(0)
+    db.close()
+    rmSync(dir, { recursive: true, force: true })
+  })
+})

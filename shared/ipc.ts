@@ -6,7 +6,8 @@
  * validation of the arguments; the preload bridge only exposes the channels
  * listed here; the renderer calls them through a typed client.
  */
-import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist } from './types'
+import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen } from './types'
+import type { ScreenDefinition } from './analysis/screener'
 
 export interface IpcInvokeContract {
   'app:getInfo': { args: []; result: AppInfo }
@@ -22,6 +23,10 @@ export interface IpcInvokeContract {
   'market:getVolume': { args: [assetId: string]; result: VolumeData }
   'analytics:getSnapshot': { args: []; result: AnalyticsSnapshot }
   'analytics:refresh': { args: []; result: void }
+  'screen:list': { args: []; result: SavedScreen[] }
+  'screen:create': { args: [name: string, definition: ScreenDefinition]; result: SavedScreen }
+  'screen:update': { args: [id: number, patch: { name?: string; definition?: ScreenDefinition }]; result: SavedScreen }
+  'screen:delete': { args: [id: number]; result: void }
   'watchlist:list': { args: []; result: Watchlist[] }
   'watchlist:create': { args: [name: string]; result: Watchlist }
   'watchlist:rename': { args: [id: number, name: string]; result: Watchlist }

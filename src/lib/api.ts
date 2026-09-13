@@ -1,5 +1,6 @@
 import type { IpcResponse } from '@shared/ipc'
 import type { Timeframe } from '@shared/types'
+import type { ScreenDefinition } from '@shared/analysis/screener'
 
 /** Error thrown by the typed API client when the main process reports a failure. */
 export class ApiError extends Error {
@@ -45,6 +46,12 @@ export const api = {
   analytics: {
     getSnapshot: () => unwrap(window.api.analytics.getSnapshot()),
     refresh: () => unwrap(window.api.analytics.refresh())
+  },
+  screen: {
+    list: () => unwrap(window.api.screen.list()),
+    create: (name: string, definition: ScreenDefinition) => unwrap(window.api.screen.create(name, definition)),
+    update: (id: number, patch: { name?: string; definition?: ScreenDefinition }) => unwrap(window.api.screen.update(id, patch)),
+    delete: (id: number) => unwrap(window.api.screen.delete(id))
   },
   watchlist: {
     list: () => unwrap(window.api.watchlist.list()),

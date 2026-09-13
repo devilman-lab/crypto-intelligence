@@ -22,6 +22,14 @@ describe('computeMetrics', () => {
     expect(m.volumeRatio).toBeCloseTo(5000 / avg, 12)
     expect(m.history).toBe(220)
   })
+  it('uses hourly candles for the 24h side when available (same-source comparison)', () => {
+    const candles = daily(Array.from({ length: 60 }, (_, i) => 10 + i * 0.01))
+    const hourly = Array.from({ length: 48 }, (_, i) => ({ time: i * 3600, open: 10, high: 10, low: 10, close: 10, volume: 2 }))
+    const m = computeMetrics({ id: 'x', symbol: 'X' }, candles, hourly, 999_999)
+    const hist = candles.slice(0, -1).slice(-30)
+    const avg = hist.reduce((s, c) => s + c.volume * c.close, 0) / hist.length
+    expect(m.volumeRatio).toBeCloseTo((24 * 2 * 10) / avg, 12)
+  })
   it('leaves volume ratio null without a 24h volume', () => {
     expect(computeMetrics({ id: 'x', symbol: 'X' }, daily(Array.from({ length: 40 }, (_, i) => 10 + i)), undefined, null).volumeRatio).toBeNull()
   })

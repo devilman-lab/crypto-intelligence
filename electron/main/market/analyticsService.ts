@@ -145,9 +145,13 @@ export function computeMetrics(asset: Pick<CryptoAsset, 'id' | 'symbol'>, daily:
   const lo = last(bb.lower)
   const s50 = last(sma(c, 50))
   const s200 = last(sma(c, 200))
-  // Average daily quote volume over the trailing 30 complete days (exclude today's partial candle).
+  // Volume ratio must compare like with like. Binance-listed assets: last 24 hourly candles vs the
+  // trailing 30 complete Binance daily candles. Others: the provider's global 24h volume vs its own
+  // daily series (both CoinGecko). Mixing global and single-exchange volumes would inflate the ratio.
   const hist = daily.slice(0, -1).slice(-30)
   const avgVol = hist.length >= 5 ? hist.reduce((s, k) => s + k.volume * k.close, 0) / hist.length : null
+  const last24 = hourly && hourly.length >= 24 ? hourly.slice(-24).reduce((s, k) => s + k.volume * k.close, 0) : null
+  const vol24 = hourly ? last24 : volume24hUsd
   return {
     assetId: asset.id,
     symbol: asset.symbol,
@@ -162,7 +166,7 @@ export function computeMetrics(asset: Pick<CryptoAsset, 'id' | 'symbol'>, daily:
     vsSma50Pct: s50 && price != null ? (price / s50 - 1) * 100 : null,
     vsSma200Pct: s200 && price != null ? (price / s200 - 1) * 100 : null,
     macdHist: last(macd(c, 12, 26, 9).histogram),
-    volumeRatio: volume24hUsd != null && avgVol ? volume24hUsd / avgVol : null,
+    volumeRatio: vol24 != null && avgVol ? vol24 / avgVol : null,
     history: daily.length,
     source: 'daily',
     computedAt: Date.now()
