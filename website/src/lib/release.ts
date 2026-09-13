@@ -13,5 +13,5 @@ export const release = {
   sizeLabel: '~110 MB',
   requirements: ['Windows 10 or Windows 11 (64-bit)', 'Internet connection for live market data', 'About 300 MB of disk space'],
   /** SHA-256 of the installer; fill in after building the release. */
-  sha256: ''
+  sha256: '1a75d5c69cec0fb9e4a2a2a67e58a9fcba239a2c3b97701a191b005258db4f40'
 }

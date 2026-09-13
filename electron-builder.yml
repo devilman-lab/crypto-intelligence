@@ -8,6 +8,9 @@ files:
   - out/**/*
   - package.json
   - '!**/*.map'
+  - '!node_modules/better-sqlite3/prebuilds/{darwin,linux,linuxmusl}*'
+  - '!node_modules/better-sqlite3/prebuilds/win32-arm64.node'
+  - '!node_modules/better-sqlite3/{src,deps,build}/**'
 extraResources:
   - from: resources/icons/icon.png
     to: icon.png
