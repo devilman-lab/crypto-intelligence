@@ -1,0 +1,34 @@
+appId: com.cryptointelligence.app
+productName: Crypto Intelligence
+copyright: Copyright © 2026 Crypto Intelligence
+directories:
+  buildResources: resources
+  output: release/${version}
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+asarUnpack:
+  - node_modules/better-sqlite3/**
+# better-sqlite3 ships Node-API prebuilds; no node-gyp rebuild is needed or possible on machines without a C++ toolchain.
+npmRebuild: false
+nodeGypRebuild: false
+buildDependenciesFromSource: false
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: resources/icons/icon.ico
+  artifactName: Crypto-Intelligence-Setup-${version}.${ext}
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  perMachine: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Crypto Intelligence
+publish:
+  provider: github
+  owner: crypto-intelligence
+  repo: crypto-intelligence
+  releaseType: release

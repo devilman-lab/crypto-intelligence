@@ -1,0 +1,126 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Design tokens ---------- */
+:root {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-2: #eef0f3;
+  --surface-3: #e4e7ec;
+  --border: #dfe3e8;
+  --border-strong: #c9cfd8;
+  --fg: #0f1419;
+  --fg-muted: #5b6472;
+  --fg-subtle: #8a93a2;
+  --accent: #2563eb;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(37, 99, 235, 0.12);
+  --positive: #0e9f6e;
+  --positive-soft: rgba(14, 159, 110, 0.12);
+  --negative: #dc2626;
+  --negative-soft: rgba(220, 38, 38, 0.12);
+  --warning: #d97706;
+  --warning-soft: rgba(217, 119, 6, 0.14);
+  --ring: rgba(37, 99, 235, 0.45);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0b0e14;
+  --surface: #10141c;
+  --surface-2: #161b25;
+  --surface-3: #1d2330;
+  --border: #1f2632;
+  --border-strong: #2c3544;
+  --fg: #e6e9ef;
+  --fg-muted: #8b94a7;
+  --fg-subtle: #5b6579;
+  --accent: #4f8cff;
+  --accent-fg: #0b0e14;
+  --accent-soft: rgba(79, 140, 255, 0.14);
+  --positive: #16c784;
+  --positive-soft: rgba(22, 199, 132, 0.14);
+  --negative: #ea3943;
+  --negative-soft: rgba(234, 57, 67, 0.14);
+  --warning: #f5a524;
+  --warning-soft: rgba(245, 165, 36, 0.16);
+  --ring: rgba(79, 140, 255, 0.5);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-positive: var(--positive);
+  --color-positive-soft: var(--positive-soft);
+  --color-negative: var(--negative);
+  --color-negative-soft: var(--negative-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-ring: var(--ring);
+
+  --font-sans: 'Inter', 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace;
+
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+}
+
+/* ---------- Base ---------- */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-bg text-fg font-sans text-[13px] antialiased;
+  font-feature-settings: 'cv11', 'ss01', 'tnum';
+  overflow: hidden;
+  user-select: none;
+}
+
+.num {
+  @apply font-mono tabular-nums;
+}
+
+input,
+textarea,
+select,
+[contenteditable] {
+  user-select: text;
+}
+
+/* Thin scrollbars for a dense desktop UI */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
