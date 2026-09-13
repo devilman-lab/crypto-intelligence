@@ -6,7 +6,7 @@
  * validation of the arguments; the preload bridge only exposes the channels
  * listed here; the renderer calls them through a typed client.
  */
-import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen } from './types'
+import type { AnalyticsSnapshot, AppInfo, AppSettings, ConnectivityStatus, CryptoAsset, OHLCVResult, TickerSnapshot, Timeframe, VolumeData, Watchlist, SavedScreen, Portfolio, Transaction, TransactionInput } from './types'
 import type { ScreenDefinition } from './analysis/screener'
 
 export interface IpcInvokeContract {
@@ -27,6 +27,15 @@ export interface IpcInvokeContract {
   'screen:create': { args: [name: string, definition: ScreenDefinition]; result: SavedScreen }
   'screen:update': { args: [id: number, patch: { name?: string; definition?: ScreenDefinition }]; result: SavedScreen }
   'screen:delete': { args: [id: number]; result: void }
+  'portfolio:list': { args: []; result: Portfolio[] }
+  'portfolio:create': { args: [name: string]; result: Portfolio }
+  'portfolio:rename': { args: [id: number, name: string]; result: Portfolio }
+  'portfolio:delete': { args: [id: number]; result: void }
+  'portfolio:listTransactions': { args: [portfolioId: number]; result: Transaction[] }
+  'portfolio:listAllTransactions': { args: []; result: Transaction[] }
+  'portfolio:addTransaction': { args: [input: TransactionInput]; result: Transaction }
+  'portfolio:updateTransaction': { args: [id: number, input: TransactionInput]; result: Transaction }
+  'portfolio:deleteTransaction': { args: [id: number]; result: void }
   'watchlist:list': { args: []; result: Watchlist[] }
   'watchlist:create': { args: [name: string]; result: Watchlist }
   'watchlist:rename': { args: [id: number, name: string]; result: Watchlist }

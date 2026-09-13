@@ -48,6 +48,17 @@ const api = {
     update: (id: number, patch: IpcArgs<'screen:update'>[1]) => invoke('screen:update', id, patch),
     delete: (id: number) => invoke('screen:delete', id)
   },
+  portfolio: {
+    list: () => invoke('portfolio:list'),
+    create: (name: string) => invoke('portfolio:create', name),
+    rename: (id: number, name: string) => invoke('portfolio:rename', id, name),
+    delete: (id: number) => invoke('portfolio:delete', id),
+    listTransactions: (portfolioId: number) => invoke('portfolio:listTransactions', portfolioId),
+    listAllTransactions: () => invoke('portfolio:listAllTransactions'),
+    addTransaction: (input: IpcArgs<'portfolio:addTransaction'>[0]) => invoke('portfolio:addTransaction', input),
+    updateTransaction: (id: number, input: IpcArgs<'portfolio:updateTransaction'>[1]) => invoke('portfolio:updateTransaction', id, input),
+    deleteTransaction: (id: number) => invoke('portfolio:deleteTransaction', id)
+  },
   watchlist: {
     list: () => invoke('watchlist:list'),
     create: (name: string) => invoke('watchlist:create', name),

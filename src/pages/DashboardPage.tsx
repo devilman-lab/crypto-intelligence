@@ -6,6 +6,8 @@ import { useWatchlistStore } from '@/stores/watchlistStore'
 import { useAnalyticsStore } from '@/stores/analyticsStore'
 import { VolPct } from '@/pages/VolatilityPage'
 import { isStablecoin } from '@shared/analysis/classify'
+import { usePortfolioValuation } from '@/hooks/usePortfolioValuation'
+import { AllocationDonut } from '@/components/portfolio/AllocationDonut'
 import { useUiStore } from '@/stores/uiStore'
 import { KpiTile, TickerList } from '@/components/dashboard/widgets'
 import { Panel } from '@/components/ui/Panel'
@@ -24,6 +26,8 @@ export function DashboardPage() {
   const lists = useWatchlistStore((s) => s.lists)
   const metrics = useAnalyticsStore((s) => s.metrics)
   const navigate = useUiStore((s) => s.navigate)
+  const { summary: pf, open: holdings } = usePortfolioValuation(null)
+  const hasPortfolio = holdings.length > 0
 
   const btc = byId['bitcoin']
   const eth = byId['ethereum']
@@ -69,9 +73,9 @@ export function DashboardPage() {
     <div className="grid auto-rows-min grid-cols-12 gap-3">
       {/* KPI row */}
       <div className="col-span-12 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <KpiTile label="Portfolio value" value="—" sub="Set up in Portfolio" onClick={() => navigate({ page: 'portfolio' })} />
-        <KpiTile label="Today's P&L" value="—" sub="No holdings yet" />
-        <KpiTile label="Total P&L" value="—" sub="No holdings yet" />
+        <KpiTile label="Portfolio value" value={hasPortfolio ? formatCurrency(pf.totalValue) : '—'} sub={hasPortfolio ? `Cost basis ${formatCurrency(pf.totalCost)}` : 'Set up in Portfolio'} onClick={() => navigate({ page: 'portfolio' })} />
+        <KpiTile label="Today's P&L" value={hasPortfolio ? `${pf.dailyPnl > 0 ? '+' : ''}${formatCurrency(pf.dailyPnl)}` : '—'} sub={hasPortfolio ? formatPercent(pf.dailyPnlPct) : 'No holdings yet'} tone={!hasPortfolio ? 'neutral' : pf.dailyPnl > 0 ? 'positive' : pf.dailyPnl < 0 ? 'negative' : 'neutral'} onClick={() => navigate({ page: 'portfolio' })} />
+        <KpiTile label="Total P&L" value={hasPortfolio ? `${pf.unrealizedPnl + pf.realizedPnl > 0 ? '+' : ''}${formatCurrency(pf.unrealizedPnl + pf.realizedPnl)}` : '—'} sub={hasPortfolio ? `Unrealised ${formatPercent(pf.unrealizedPnlPct)}` : 'No holdings yet'} tone={!hasPortfolio ? 'neutral' : pf.unrealizedPnl + pf.realizedPnl > 0 ? 'positive' : pf.unrealizedPnl + pf.realizedPnl < 0 ? 'negative' : 'neutral'} onClick={() => navigate({ page: 'portfolio' })} />
         <KpiTile label="Bitcoin" value={formatCurrency(btc?.price)} sub={<PctChange value={btc?.change24hPct} />} onClick={() => navigate({ page: 'asset', assetId: 'bitcoin' })} />
         <KpiTile label="Ethereum" value={formatCurrency(eth?.price)} sub={<PctChange value={eth?.change24hPct} />} onClick={() => navigate({ page: 'asset', assetId: 'ethereum' })} />
         <KpiTile
@@ -137,8 +141,12 @@ export function DashboardPage() {
       <Panel title="Recent paper trades" className="col-span-12 md:col-span-6 xl:col-span-4" padded={false}>
         <EmptyState icon={FlaskConical} title="No simulated trades" description="Paper trading arrives in Phase 8." />
       </Panel>
-      <Panel title="Portfolio allocation" className="col-span-12 md:col-span-6 xl:col-span-4" padded={false}>
-        <EmptyState icon={Briefcase} title="No portfolio yet" description="Portfolio tracking arrives in Phase 7." />
+      <Panel title="Portfolio allocation" className="col-span-12 md:col-span-6 xl:col-span-4" padded={hasPortfolio} actions={<Button size="xs" variant="ghost" onClick={() => navigate({ page: 'portfolio' })}>Open</Button>}>
+        {hasPortfolio ? (
+          <AllocationDonut size={120} slices={holdings.filter((h) => h.value != null).map((h) => ({ key: h.assetId, label: h.symbol, value: h.value! }))} />
+        ) : (
+          <EmptyState icon={Briefcase} title="No portfolio yet" description="Add transactions in Portfolio to track holdings and P&L." />
+        )}
       </Panel>
     </div>
   )

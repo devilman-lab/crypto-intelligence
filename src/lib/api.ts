@@ -1,5 +1,5 @@
 import type { IpcResponse } from '@shared/ipc'
-import type { Timeframe } from '@shared/types'
+import type { Timeframe, TransactionInput } from '@shared/types'
 import type { ScreenDefinition } from '@shared/analysis/screener'
 
 /** Error thrown by the typed API client when the main process reports a failure. */
@@ -52,6 +52,17 @@ export const api = {
     create: (name: string, definition: ScreenDefinition) => unwrap(window.api.screen.create(name, definition)),
     update: (id: number, patch: { name?: string; definition?: ScreenDefinition }) => unwrap(window.api.screen.update(id, patch)),
     delete: (id: number) => unwrap(window.api.screen.delete(id))
+  },
+  portfolio: {
+    list: () => unwrap(window.api.portfolio.list()),
+    create: (name: string) => unwrap(window.api.portfolio.create(name)),
+    rename: (id: number, name: string) => unwrap(window.api.portfolio.rename(id, name)),
+    delete: (id: number) => unwrap(window.api.portfolio.delete(id)),
+    listTransactions: (portfolioId: number) => unwrap(window.api.portfolio.listTransactions(portfolioId)),
+    listAllTransactions: () => unwrap(window.api.portfolio.listAllTransactions()),
+    addTransaction: (input: TransactionInput) => unwrap(window.api.portfolio.addTransaction(input)),
+    updateTransaction: (id: number, input: TransactionInput) => unwrap(window.api.portfolio.updateTransaction(id, input)),
+    deleteTransaction: (id: number) => unwrap(window.api.portfolio.deleteTransaction(id))
   },
   watchlist: {
     list: () => unwrap(window.api.watchlist.list()),

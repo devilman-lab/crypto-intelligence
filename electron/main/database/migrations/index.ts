@@ -93,5 +93,29 @@ export const migrations: Migration[] = [
         updated_at INTEGER NOT NULL
       );
     `
+  },
+  {
+    version: 5,
+    name: 'portfolios',
+    up: `
+      CREATE TABLE IF NOT EXISTS portfolios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        portfolio_id INTEGER NOT NULL REFERENCES portfolios(id) ON DELETE CASCADE,
+        asset_id TEXT NOT NULL,
+        symbol TEXT NOT NULL,
+        type TEXT NOT NULL CHECK (type IN ('buy','sell','deposit','withdrawal')),
+        quantity REAL NOT NULL CHECK (quantity >= 0),
+        price REAL NOT NULL CHECK (price >= 0),
+        fee REAL NOT NULL DEFAULT 0 CHECK (fee >= 0),
+        timestamp INTEGER NOT NULL,
+        notes TEXT NOT NULL DEFAULT ''
+      );
+      CREATE INDEX IF NOT EXISTS idx_transactions_portfolio ON transactions(portfolio_id, timestamp);
+    `
   }
 ]
