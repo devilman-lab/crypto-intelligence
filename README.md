@@ -31,8 +31,8 @@ Everything works without an account, API keys or exchange credentials. All user 
 - **State:** Zustand (one store per domain)
 - **Database:** SQLite via `better-sqlite3` (Node-API prebuilds — no C++ toolchain required)
 - **Validation:** zod at the IPC boundary and for backup imports
-- **Tests / quality:** Vitest (107 tests), ESLint 9 + typescript-eslint + react-hooks, `tsc`
-- **Packaging:** electron-builder (NSIS installer), electron-updater (GitHub Releases)
+- **Tests / quality:** Vitest (124 tests), ESLint 9 + typescript-eslint + react-hooks, `tsc`
+- **Packaging:** electron-builder (NSIS installer + portable exe), electron-updater (GitHub Releases)
 - **Website:** Next.js + TypeScript + Tailwind in `website/`
 
 ## Architecture
