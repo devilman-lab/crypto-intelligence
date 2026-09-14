@@ -10,7 +10,7 @@
 const OWNER_REPO = 'devilman-lab/crypto-intelligence'
 const VERSION = '0.1.0'
 /** Set to true once the assets for VERSION have been uploaded to GitHub Releases. */
-const ASSETS_PUBLISHED = false
+const ASSETS_PUBLISHED = true
 
 const releasesUrl = `https://github.com/${OWNER_REPO}/releases`
 const assetUrl = (file: string) => (ASSETS_PUBLISHED ? `https://github.com/${OWNER_REPO}/releases/download/v${VERSION}/${file}` : releasesUrl)
