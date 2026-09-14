@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "preview": "next build && node scripts/serve.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.45.0",

@@ -118,8 +118,9 @@ Suites cover: indicator maths, volatility maths, screener evaluation, portfolio 
 ```bash
 cd website
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # static export
+npm run dev      # http://localhost:3000 (dev server; compiles routes on first visit)
+npm run build    # static export into out/
+npm run preview  # build, then serve out/ exactly as a web host would (no compile step)
 ```
 
 ## Roadmap (out of MVP scope)

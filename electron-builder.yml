@@ -43,6 +43,6 @@ portable:
   requestExecutionLevel: user
 publish:
   provider: github
-  owner: crypto-intelligence
+  owner: devilman-lab
   repo: crypto-intelligence
   releaseType: release
