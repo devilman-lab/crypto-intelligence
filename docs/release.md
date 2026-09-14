@@ -73,11 +73,19 @@ Both executables are **unsigned** unless signing is configured. Windows SmartScr
 ## Publishing
 
 1. Build on a clean Windows machine (or CI runner): `npm run dist:all`.
-2. Create a GitHub release tagged `v<version>` and upload the installer, its `.blockmap`, `latest.yml`, the portable exe and both `.sha256` files — for example with the GitHub CLI:
+2. Create a GitHub release tagged `v<version>` and upload six files from `release/<version>/`: the installer, its `.blockmap`, `latest.yml`, the portable exe and both `.sha256` files.
+   - **Web UI:** Releases → "Draft a new release" → tag `v<version>` (created on publish) → drag the six files into the assets area → Publish.
+   - **GitHub CLI** (if installed):
 
-   ```bash
-   gh release create v<version>      release/<version>/Crypto-Intelligence-Setup-<version>.exe      release/<version>/Crypto-Intelligence-Setup-<version>.exe.blockmap      release/<version>/Crypto-Intelligence-Setup-<version>.exe.sha256      release/<version>/Crypto-Intelligence-Portable-<version>.exe      release/<version>/Crypto-Intelligence-Portable-<version>.exe.sha256      release/<version>/latest.yml      --title "Crypto Intelligence <version>"
-   ```
+     ```bash
+     gh release create v<version> --title "Crypto Intelligence <version>" \
+       release/<version>/Crypto-Intelligence-Setup-<version>.exe \
+       release/<version>/Crypto-Intelligence-Setup-<version>.exe.blockmap \
+       release/<version>/Crypto-Intelligence-Setup-<version>.exe.sha256 \
+       release/<version>/Crypto-Intelligence-Portable-<version>.exe \
+       release/<version>/Crypto-Intelligence-Portable-<version>.exe.sha256 \
+       release/<version>/latest.yml
+     ```
 
    Never commit `release/` to git: GitHub rejects files over 100 MB, and the artifacts belong on the Releases page, which is where `latest.yml`, the update service and the website look for them.
 3. Update `website/src/lib/release.ts`: `VERSION`, `date`, both `sha256` values, `sizeLabel`s, and set `ASSETS_PUBLISHED = true` so the download buttons link to the assets instead of the releases page. Rebuild and deploy the site (`cd website && npm run build`; `npm run preview` serves the export locally for a final check without the dev server's compile step).
